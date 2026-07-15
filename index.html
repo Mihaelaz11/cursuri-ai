@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cursuri AI — Traseul tău în AI</title>
+<style>
+  :root{
+    --bg:#F7F5FF;
+    --bg-card:#FFFFFF;
+    --ink:#1B1B3A;
+    --ink-soft:#5B5A82;
+    --line:#E4E1F5;
+    --violet:#7C5CFC;
+    --violet-deep:#5A3FD6;
+    --coral:#FF6B5B;
+    --mint:#2FD9A6;
+    --amber:#FFB84D;
+    --blue:#4C8DFF;
+    --pink:#FF4FA3;
+    --shadow: 0 8px 24px -8px rgba(27,27,58,0.18);
+    --radius: 18px;
+    --font-display: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --font-body: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 8% 8%, rgba(124,92,252,0.08), transparent 40%),
+      radial-gradient(circle at 92% 15%, rgba(255,107,91,0.08), transparent 40%),
+      var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    min-height:100vh;
+    line-height:1.55;
+  }
+  h1,h2,h3,h4,.display{
+    font-family:var(--font-display);
+    letter-spacing:-0.01em;
+    font-weight:700;
+  }
+  .mono{ font-family:var(--font-mono); }
+  button{ font-family:inherit; cursor:pointer; }
+  a{ color:var(--violet-deep); }
+  :focus-visible{ outline:3px solid var(--violet); outline-offset:2px; border-radius:6px; }
+
+  .hidden{ display:none !important; }
+
+  /* ---------- Header ---------- */
+  header.topbar{
+    position:sticky; top:0; z-index:40;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 28px;
+    background:rgba(247,245,255,0.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+    gap:16px; flex-wrap:wrap;
+  }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand-mark{
+    width:38px;height:38px;border-radius:11px;
+    background:linear-gradient(135deg,var(--violet),var(--pink));
+    display:flex;align-items:center;justify-content:center;
+    color:#fff; font-family:var(--font-display); font-weight:700; font-size:18px;
+    box-shadow:var(--shadow);
+    flex-shrink:0;
+  }
+  .brand-text h1{ font-size:19px; margin:0; line-height:1.1;}
+  .brand-text span{ font-size:12px; color:var(--ink-soft); }
+  nav.tabs{ display:flex; gap:6px; background:#fff; border:1px solid var(--line); padding:4px; border-radius:14px; }
+  nav.tabs button{
+    border:none; background:transparent; padding:8px 14px; border-radius:10px;
+    font-weight:600; font-size:13.5px; color:var(--ink-soft); transition:all .15s ease;
+  }
+  nav.tabs button.active{ background:var(--ink); color:#fff; }
+  nav.tabs button:hover:not(.active){ background:var(--bg); color:var(--ink); }
+
+  .user-chip{
+    display:flex; align-items:center; gap:10px;
+    background:#fff; border:1px solid var(--line); border-radius:999px;
+    padding:6px 8px 6px 14px;
+  }
+  .user-chip .avatar{
+    width:30px;height:30px;border-radius:50%;
+    background:linear-gradient(135deg,var(--mint),var(--blue));
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-weight:700;font-size:13px;
+  }
+  .user-chip button{
+    border:none; background:var(--bg); padding:6px 12px; border-radius:999px;
+    font-size:12.5px; font-weight:600; color:var(--ink-soft);
+  }
+  .user-chip button:hover{ background:var(--line); }
+
+  main{ max-width:1120px; margin:0 auto; padding:32px 24px 80px; }
+  .view{ display:none; animation: fadein .35s ease; }
+  .view.active{ display:block; }
+  @keyframes fadein{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
+
+  /* ---------- Auth view ---------- */
+  .auth-wrap{
+    max-width:480px; margin:6vh auto; text-align:center;
+  }
+  .auth-wrap .brand-mark{ margin:0 auto 18px; width:56px;height:56px;font-size:26px; border-radius:16px;}
+  .auth-wrap h2{ font-size:28px; margin:0 0 6px; }
+  .auth-wrap p{ color:var(--ink-soft); margin:0 0 28px; font-size:15px;}
+  .auth-card{
+    background:var(--bg-card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:26px; box-shadow:var(--shadow); text-align:left;
+  }
+  .auth-card label{ font-size:12.5px; font-weight:600; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.04em;}
+  .auth-card input[type=text]{
+    width:100%; margin-top:8px; padding:12px 14px; border-radius:12px;
+    border:1.5px solid var(--line); font-size:15px; font-family:inherit; color:var(--ink);
+    background:var(--bg);
+  }
+  .auth-card input[type=text]:focus{ border-color:var(--violet); }
+  .btn-primary{
+    margin-top:16px; width:100%; padding:13px; border:none; border-radius:12px;
+    background:linear-gradient(135deg,var(--violet),var(--violet-deep)); color:#fff;
+    font-weight:700; font-size:15px; box-shadow:0 6px 18px -6px rgba(124,92,252,.6);
+    transition:transform .12s ease;
+  }
+  .btn-primary:hover{ transform:translateY(-1px); }
+  .existing-profiles{ margin-top:22px; }
+  .existing-profiles p{ font-size:12.5px; color:var(--ink-soft); font-weight:600; margin-bottom:10px;}
+  .profile-chip-row{ display:flex; flex-wrap:wrap; gap:8px; }
+  .profile-pick{
+    display:flex; align-items:center; gap:8px;
+    background:#fff; border:1.5px solid var(--line); border-radius:999px; padding:6px 14px 6px 6px;
+    font-size:13.5px; font-weight:600;
+  }
+  .profile-pick:hover{ border-color:var(--violet); }
+  .profile-pick .avatar{ width:26px;height:26px;border-radius:50%; background:linear-gradient(135deg,var(--coral),var(--amber)); display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;}
+
+  /* ---------- Dashboard ---------- */
+  .dash-head{ display:flex; justify-content:space-between; align-items:flex-end; gap:20px; flex-wrap:wrap; margin-bottom:6px;}
+  .dash-head h2{ font-size:30px; margin:0 0 4px;}
+  .dash-head p{ color:var(--ink-soft); margin:0; max-width:520px; font-size:14.5px;}
+  .stat-row{ display:flex; gap:12px; flex-wrap:wrap; }
+  .stat-pill{
+    background:#fff; border:1px solid var(--line); border-radius:14px; padding:10px 16px;
+    display:flex; flex-direction:column; min-width:96px;
+  }
+  .stat-pill .n{ font-family:var(--font-mono); font-weight:700; font-size:20px; color:var(--violet-deep);}
+  .stat-pill .l{ font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.04em; margin-top:2px;}
+
+  .map-section{
+    margin-top:26px; background:var(--bg-card); border:1px solid var(--line); border-radius:24px;
+    padding:10px; box-shadow:var(--shadow); overflow-x:auto;
+  }
+  .map-inner{ position:relative; width:960px; height:460px; max-width:100%; margin:0 auto;}
+  .map-inner svg{ position:absolute; top:0; left:0; width:960px; height:460px; }
+  .node{
+    position:absolute; transform:translate(-50%,-50%); text-align:center; width:150px;
+    background:none; border:none; padding:0;
+  }
+  .node-ring{
+    width:86px; height:86px; border-radius:50%; margin:0 auto;
+    display:flex; align-items:center; justify-content:center; position:relative;
+    transition:transform .18s ease;
+  }
+  .node:hover .node-ring{ transform:scale(1.06); }
+  .node-inner{
+    width:70px; height:70px; border-radius:50%; background:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:26px;
+    box-shadow:0 4px 10px -3px rgba(27,27,58,.25);
+  }
+  .node-pct{
+    position:absolute; bottom:-6px; right:2px; background:var(--ink); color:#fff;
+    font-family:var(--font-mono); font-size:10px; font-weight:600; padding:2px 6px; border-radius:999px;
+  }
+  .node-label{ margin-top:8px; font-size:12.5px; font-weight:600; line-height:1.25; color:var(--ink); }
+  .node-sub{ font-size:10.5px; color:var(--ink-soft); font-family:var(--font-mono); margin-top:2px;}
+  .map-line{ fill:none; stroke:var(--line); stroke-width:3; }
+  .map-line-fill{ fill:none; stroke-width:3; stroke-linecap:round; }
+
+  .badge-shelf{ margin-top:30px; }
+  .section-title{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .section-title h3{ font-size:17px; margin:0; }
+  .link-btn{ background:none; border:none; font-weight:700; font-size:13px; color:var(--violet-deep); }
+  .badge-row{ display:flex; gap:12px; overflow-x:auto; padding-bottom:6px; }
+  .badge-card{
+    flex:0 0 auto; width:150px; background:#fff; border:1.5px solid var(--line); border-radius:16px;
+    padding:14px; text-align:center; opacity:.45; filter:grayscale(1);
+  }
+  .badge-card.unlocked{ opacity:1; filter:none; border-color:var(--amber); box-shadow:0 6px 16px -6px rgba(255,184,77,.5); }
+  .badge-card .ic{ font-size:30px; }
+  .badge-card .t{ font-weight:700; font-size:12.5px; margin-top:6px; }
+  .badge-card .d{ font-size:10.5px; color:var(--ink-soft); margin-top:3px; line-height:1.3;}
+
+  /* ---------- Course grid (list view) ---------- */
+  .course-strip{ margin-top:34px; }
+  .course-list{ display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin-top:14px;}
+  .course-card{
+    background:#fff; border:1.5px solid var(--line); border-radius:16px; padding:16px; text-align:left;
+    display:flex; flex-direction:column; gap:8px; transition:border-color .15s ease, transform .15s ease;
+  }
+  .course-card:hover{ border-color:var(--violet); transform:translateY(-2px); }
+  .course-card .ic{ font-size:24px; }
+  .course-card h4{ margin:0; font-size:15px; }
+  .course-card p{ margin:0; font-size:12.5px; color:var(--ink-soft); flex-grow:1;}
+  .mini-bar{ height:6px; border-radius:999px; background:var(--line); overflow:hidden; margin-top:4px;}
+  .mini-bar > div{ height:100%; border-radius:999px; }
+
+  /* ---------- Course detail / lesson / quiz views ---------- */
+  .back-btn{
+    border:none; background:#fff; border:1.5px solid var(--line); padding:8px 14px; border-radius:999px;
+    font-weight:700; font-size:13px; display:inline-flex; align-items:center; gap:6px; margin-bottom:18px;
+  }
+  .back-btn:hover{ border-color:var(--violet); }
+  .course-header{ display:flex; gap:16px; align-items:center; margin-bottom:22px; flex-wrap:wrap;}
+  .course-header .ic-badge{
+    width:56px;height:56px;border-radius:16px; display:flex;align-items:center;justify-content:center; font-size:26px; color:#fff; flex-shrink:0;
+  }
+  .course-header h2{ margin:0 0 4px; font-size:24px;}
+  .course-header p{ margin:0; color:var(--ink-soft); font-size:14px; max-width:560px;}
+  .progress-track{ background:var(--line); border-radius:999px; height:10px; width:100%; max-width:420px; overflow:hidden; margin-top:10px;}
+  .progress-track > div{ height:100%; border-radius:999px; transition:width .3s ease; }
+
+  .lesson-grid{ display:grid; gap:10px; margin-top:20px;}
+  .lesson-row{
+    display:flex; align-items:center; gap:14px; background:#fff; border:1.5px solid var(--line);
+    border-radius:14px; padding:14px 16px; text-align:left;
+  }
+  .lesson-row:hover{ border-color:var(--violet); }
+  .lesson-check{
+    width:28px;height:28px;border-radius:50%; border:2px solid var(--line); flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:13px; color:#fff; font-weight:700;
+  }
+  .lesson-check.done{ background:var(--mint); border-color:var(--mint); }
+  .lesson-row .lt{ font-weight:600; font-size:14.5px; flex-grow:1;}
+  .lesson-row .la{ font-size:12px; color:var(--ink-soft); font-family:var(--font-mono);}
+  .quiz-row{ margin-top:6px; border-style:dashed; }
+
+  .lesson-body{ background:#fff; border:1.5px solid var(--line); border-radius:20px; padding:28px; margin-top:18px; max-width:720px;}
+  .lesson-body h3{ margin-top:0; font-size:21px;}
+  .lesson-body p{ font-size:15px; color:var(--ink); }
+  .lesson-nav{ display:flex; justify-content:space-between; margin-top:26px; gap:10px; flex-wrap:wrap;}
+  .btn-ghost{
+    border:1.5px solid var(--line); background:#fff; padding:11px 18px; border-radius:12px; font-weight:700; font-size:13.5px; color:var(--ink);
+  }
+  .btn-ghost:hover{ border-color:var(--violet); }
+  .btn-complete{
+    border:none; padding:11px 20px; border-radius:12px; font-weight:700; font-size:13.5px; color:#fff;
+    background:linear-gradient(135deg,var(--mint),#1fb587); box-shadow:0 6px 16px -6px rgba(47,217,166,.55);
+  }
+  .btn-complete.done{ background:var(--ink-soft); box-shadow:none; }
+
+  .quiz-card{ background:#fff; border:1.5px solid var(--line); border-radius:20px; padding:26px; margin-top:18px; max-width:680px;}
+  .quiz-q{ margin-bottom:22px; }
+  .quiz-q p.qt{ font-weight:700; font-size:15px; margin:0 0 10px;}
+  .opt{
+    display:flex; align-items:center; gap:10px; padding:11px 14px; border:1.5px solid var(--line); border-radius:12px;
+    margin-bottom:8px; font-size:14px; cursor:pointer; transition:border-color .12s ease, background .12s ease;
+  }
+  .opt:hover{ border-color:var(--violet); }
+  .opt input{ accent-color:var(--violet); width:16px;height:16px; }
+  .opt.correct{ border-color:var(--mint); background:rgba(47,217,166,.08); }
+  .opt.wrong{ border-color:var(--coral); background:rgba(255,107,91,.08); }
+  .quiz-result{
+    margin-top:18px; padding:16px 18px; border-radius:14px; font-weight:700; font-size:15px;
+  }
+  .quiz-result.pass{ background:rgba(47,217,166,.12); color:#1a8a67; }
+  .quiz-result.fail{ background:rgba(255,107,91,.12); color:#c94b3d; }
+
+  /* ---------- Badges page ---------- */
+  .badge-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:14px; margin-top:18px;}
+
+  /* ---------- Toast ---------- */
+  #toast{
+    position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:#fff; padding:14px 20px; border-radius:14px; font-weight:700; font-size:13.5px;
+    display:flex; align-items:center; gap:10px; box-shadow:0 10px 30px -8px rgba(0,0,0,.4);
+    opacity:0; pointer-events:none; transition:all .3s ease; z-index:100;
+  }
+  #toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  footer{ text-align:center; padding:30px 20px 50px; color:var(--ink-soft); font-size:12px; }
+
+  @media (max-width:640px){
+    main{ padding:22px 14px 70px; }
+    .dash-head{ flex-direction:column; align-items:flex-start; }
+    header.topbar{ padding:12px 14px; }
+    nav.tabs button{ padding:7px 10px; font-size:12.5px;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">
+      <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <line x1="12" y1="2" x2="12" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="12" cy="2" r="1.3" fill="currentColor"/>
+        <rect x="3" y="5" width="18" height="16" rx="6" fill="currentColor"/>
+        <rect x="6.5" y="10" width="11" height="6" rx="3" fill="#1B1B3A"/>
+        <circle cx="10" cy="13" r="1.3" fill="#fff"/>
+        <circle cx="14" cy="13" r="1.3" fill="#fff"/>
+      </svg>
+    </div>
+    <div class="brand-text">
+      <h1>Cursuri AI</h1>
+      <span>Traseul tău în AI &middot; 2026</span>
+    </div>
+  </div>
+  <nav class="tabs" id="mainTabs">
+    <button data-tab="dashboard" class="active">Traseul meu</button>
+    <button data-tab="badges">Insigne</button>
+  </nav>
+  <div class="user-chip" id="userChip">
+    <div class="avatar" id="userAvatar">?</div>
+    <span id="userName" class="mono" style="font-size:13px;font-weight:600;"></span>
+    <button id="switchUserBtn">Schimbă</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- AUTH VIEW -->
+  <section class="view" id="view-auth">
+    <div class="auth-wrap">
+      <div class="brand-mark">
+        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <line x1="12" y1="2" x2="12" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="12" cy="2" r="1.3" fill="currentColor"/>
+          <rect x="3" y="5" width="18" height="16" rx="6" fill="currentColor"/>
+          <rect x="6.5" y="10" width="11" height="6" rx="3" fill="#1B1B3A"/>
+          <circle cx="10" cy="13" r="1.3" fill="#fff"/>
+          <circle cx="14" cy="13" r="1.3" fill="#fff"/>
+        </svg>
+      </div>
+      <h2>Bine ai venit la Cursuri AI</h2>
+      <p>O platformă de învățare despre inteligența artificială în 2026. Creează-ți un profil ca să-ți urmărești traseul.</p>
+      <div class="auth-card">
+        <label for="nameInput">Numele tău</label>
+        <input type="text" id="nameInput" placeholder="ex: Ana" maxlength="24">
+        <button class="btn-primary" id="startBtn">Începe călătoria →</button>
+      </div>
+      <div class="existing-profiles hidden" id="existingProfiles">
+        <p>Profiluri existente</p>
+        <div class="profile-chip-row" id="profileChipRow"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD VIEW -->
+  <section class="view" id="view-dashboard">
+    <div class="dash-head">
+      <div>
+        <h2>Traseul tău în AI</h2>
+        <p>Fiecare nod e un curs. Parcurge lecțiile, dă quiz-ul și urmărește-ți traseul completându-se.</p>
+      </div>
+      <div class="stat-row" id="statRow"></div>
+    </div>
+
+    <div class="map-section">
+      <div class="map-inner" id="mapInner"></div>
+    </div>
+
+    <div class="badge-shelf">
+      <div class="section-title">
+        <h3>Insignele tale</h3>
+        <button class="link-btn" data-tab="badges">Vezi toate →</button>
+      </div>
+      <div class="badge-row" id="badgeRow"></div>
+    </div>
+
+    <div class="course-strip">
+      <div class="section-title"><h3>Toate cursurile</h3></div>
+      <div class="course-list" id="courseList"></div>
+    </div>
+  </section>
+
+  <!-- COURSE DETAIL VIEW -->
+  <section class="view" id="view-course">
+    <button class="back-btn" data-back="dashboard">← Înapoi la traseu</button>
+    <div class="course-header" id="courseHeader"></div>
+    <div class="progress-track" id="courseProgressTrack"><div></div></div>
+    <div class="lesson-grid" id="lessonGrid"></div>
+  </section>
+
+  <!-- LESSON VIEW -->
+  <section class="view" id="view-lesson">
+    <button class="back-btn" id="lessonBackBtn">← Înapoi la curs</button>
+    <div class="lesson-body" id="lessonBody"></div>
+  </section>
+
+  <!-- QUIZ VIEW -->
+  <section class="view" id="view-quiz">
+    <button class="back-btn" id="quizBackBtn">← Înapoi la curs</button>
+    <div class="quiz-card" id="quizCard"></div>
+  </section>
+
+  <!-- BADGES VIEW -->
+  <section class="view" id="view-badges">
+    <div class="dash-head">
+      <div>
+        <h2>Toate insignele</h2>
+        <p>Deblochezi insigne pe măsură ce avansezi prin cursuri și quiz-uri.</p>
+      </div>
+    </div>
+    <div class="badge-grid" id="badgeGrid"></div>
+  </section>
+
+</main>
+
+<footer>Cursuri AI — proiect educațional despre AI · progresul este salvat pentru profilul tău.</footer>
+<div id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============ DATE CURSURI ============ */
+  const COURSES = [
+    {
+      id:"genai", title:"Fundamentele AI Generativ", short:"AI Generativ",
+      icon:"✨", color:"var(--violet)", colorHex:"#7C5CFC",
+      desc:"Cum funcționează modelele generative, de la LLM-uri la sisteme multimodale.",
+      lessons:[
+        {id:"l1", title:"Ce este AI generativ și cum a ajuns aici", html:"<p>AI generativ desemnează sistemele capabile să producă conținut nou — text, imagini, cod, sunet — pe baza unor tipare învățate din date. Spre deosebire de sistemele clasice, care clasifică sau prezic pe baza unor reguli fixe, modelele generative construiesc reprezentări statistice ale limbajului și lumii, apoi le folosesc pentru a genera răspunsuri plauzibile.</p><p>Evoluția rapidă din ultimii ani a dus la modele capabile să înțeleagă context, să raționeze în pași și să colaboreze cu unelte externe. În 2026, aceste sisteme nu mai sunt doar „generatoare de text” — sunt asistenți capabili să caute informații, să scrie și să ruleze cod, sau să coordoneze alte sisteme AI pentru sarcini complexe.</p>"},
+        {id:"l2", title:"Modele de limbaj mari (LLM) — cum funcționează", html:"<p>Un model de limbaj mare învață să prezică următorul cuvânt dintr-o secvență, antrenat pe cantități uriașe de text. Din acest proces simplu la prima vedere emerg capacități surprinzătoare: rezumare, traducere, raționament logic de bază, scriere de cod.</p><p>Arhitectura de tip „transformer” permite modelului să pună în relație fiecare cuvânt cu toate celelalte dintr-un text, captând context pe distanțe lungi. Antrenamentul are, de regulă, mai multe etape: învățare pe text brut, apoi ajustare fină pe baza feedback-ului uman, pentru ca răspunsurile să fie mai utile, mai sigure și mai aliniate cu așteptările oamenilor.</p>"},
+        {id:"l3", title:"AI multimodal: text, imagine, sunet, video", html:"<p>Modelele multimodale procesează și generează mai multe tipuri de conținut simultan — pot „vedea” o imagine și descrie ce conține, pot asculta o înregistrare și transcrie sau rezuma discuția, pot combina text și imagine pentru a explica o diagramă.</p><p>Această capacitate deschide aplicații noi: analiza documentelor scanate, asistență vizuală, generare de conținut video scurt din descrieri text. Provocarea tehnică este alinierea reprezentărilor diferitelor tipuri de date într-un spațiu comun, astfel încât modelul să poată „gândi” coerent despre informații venite din canale diferite.</p>"},
+        {id:"l4", title:"Limitări, halucinații și verificarea informației", html:"<p>Modelele generative pot produce afirmații care sună plauzibil, dar sunt greșite — fenomen numit „halucinație”. Cauza ține de natura statistică a generării: modelul completează tipare probabile, nu verifică fapte împotriva unei surse de adevăr, decât dacă este conectat explicit la unelte de căutare sau la baze de date verificate.</p><p>De aceea, orice informație critică generată de AI — cifre, citate, referințe legale sau medicale — trebuie verificată independent. O practică sănătoasă în 2026 este combinarea AI-ului generativ cu surse verificabile și cu judecata umană, mai ales în decizii cu impact real.</p>"}
+      ],
+      quiz:[
+        {q:"Ce înseamnă „halucinație” în contextul AI generativ?", opts:["O eroare de rulare a programului","Generarea unei informații plauzibile dar incorecte","O funcție de securitate","Un tip de antrenament"], correct:1},
+        {q:"Ce tip de arhitectură stă la baza majorității LLM-urilor moderne?", opts:["Rețea convoluțională","Arbore de decizie","Transformer","Mașină cu vectori suport"], correct:2},
+        {q:"Ce caracterizează un model multimodal?", opts:["Procesează doar text","Poate procesa/genera mai multe tipuri de date (text, imagine, sunet)","Funcționează fără antrenament","Este mereu mai lent decât un model text-only"], correct:1},
+        {q:"De ce e recomandat să verifici informațiile critice generate de AI?", opts:["Pentru că AI-ul mereu minte intenționat","Pentru că modelele pot genera afirmații plauzibile dar nefondate","Nu e necesar, AI-ul e mereu corect","Doar pentru texte în limbi străine"], correct:1}
+      ]
+    },
+    {
+      id:"prompt", title:"Prompt Engineering Avansat", short:"Prompt Engineering",
+      icon:"🧭", color:"var(--coral)", colorHex:"#FF6B5B",
+      desc:"Tehnici pentru a comunica precis cu modelele AI și a obține rezultate consistente.",
+      lessons:[
+        {id:"l1", title:"Anatomia unui prompt eficient", html:"<p>Un prompt bun comunică clar contextul, sarcina, formatul dorit și constrângerile. Patru ingrediente ajută constant: rol (cine ar trebui să „fie” modelul), context (informații relevante), sarcină (ce trebuie făcut, cât mai specific) și format (cum trebuie structurat răspunsul — listă, tabel, cod).</p><p>Ambiguitatea este principalul dușman: cu cât lași loc de interpretare, cu atât rezultatul variază mai mult. O tehnică simplă este să incluzi un exemplu concret al rezultatului dorit, ceea ce reduce nevoia de explicații lungi.</p>"},
+        {id:"l2", title:"Tehnici avansate: chain-of-thought, few-shot, role prompting", html:"<p>„Chain-of-thought” înseamnă a cere modelului să raționeze pas cu pas înainte de a da răspunsul final, ceea ce îmbunătățește performanța la sarcini logice. „Few-shot prompting” oferă 2-3 exemple de intrare-ieșire înainte de sarcina reală, ajutând modelul să înțeleagă tiparul așteptat.</p><p>„Role prompting” atribuie modelului o identitate specifică („acționează ca un editor tehnic”), ceea ce îi restrânge stilul și vocabularul. Combinate, aceste tehnici transformă un prompt vag într-o instrucțiune precisă și repetabilă.</p>"},
+        {id:"l3", title:"Prompt engineering pentru agenți AI", html:"<p>Când un model controlează unelte — căutare web, execuție de cod, citire de fișiere — prompturile trebuie să specifice și reguli de comportament: când să folosească o unealtă, cum să gestioneze erorile, când să se oprească și să ceară confirmare.</p><p>Agenții funcționează adesea în bucle: planifică, acționează, observă rezultatul, ajustează planul. Un prompt de sistem bine scris definește limitele acestei bucle, evitând acțiuni repetitive inutile sau decizii riscante fără supraveghere.</p>"},
+        {id:"l4", title:"Testare și iterare sistematică a prompturilor", html:"<p>Un prompt rar este perfect din prima încercare. Practica recomandată este testarea pe un set variat de cazuri („edge cases”), notarea eșecurilor și ajustarea incrementală.</p><p>Compararea a două variante de prompt pe aceleași exemple („A/B testing”) ajută la decizii obiective, nu bazate pe impresii. Documentarea prompturilor care funcționează bine — ca într-o bibliotecă reutilizabilă — economisește timp echipei pe termen lung.</p>"}
+      ],
+      quiz:[
+        {q:"Ce reprezintă tehnica „chain-of-thought”?", opts:["Legarea mai multor modele între ele","Cererea unui raționament pas cu pas înainte de răspunsul final","Un format de fișier","O metodă de criptare"], correct:1},
+        {q:"„Few-shot prompting” presupune:", opts:["Zero exemple oferite modelului","Includerea câtorva exemple intrare-ieșire","Doar întrebări foarte scurte","Folosirea exclusivă a imaginilor"], correct:1},
+        {q:"De ce e importantă definirea limitelor comportamentale pentru un agent AI?", opts:["Nu e importantă","Pentru a preveni acțiuni riscante sau repetitive fără supraveghere","Doar din motive estetice","Pentru a încetini inutil modelul"], correct:1},
+        {q:"Care e scopul testării sistematice a prompturilor?", opts:["Identificarea eșecurilor și îmbunătățirea incrementală","Creșterea lungimii promptului la infinit","Eliminarea garantată a tuturor erorilor","Nu are un scop practic real"], correct:0}
+      ]
+    },
+    {
+      id:"etica", title:"Etică și Guvernanță AI", short:"Etică AI",
+      icon:"⚖️", color:"var(--mint)", colorHex:"#2FD9A6",
+      desc:"Bias, confidențialitate, reglementări și responsabilitate în sistemele AI.",
+      lessons:[
+        {id:"l1", title:"Bias și echitate în sistemele AI", html:"<p>Modelele AI învață din date istorice, care pot conține tipare de discriminare sau subreprezentare. Rezultatul poate fi un sistem care performează inegal pentru grupuri diferite — de exemplu recunoaștere facială mai puțin precisă pentru anumite categorii de persoane.</p><p>Reducerea bias-ului implică audit regulat al datelor și rezultatelor, diversificarea seturilor de antrenament și testare explicită pe subgrupuri, nu doar pe performanța medie generală.</p>"},
+        {id:"l2", title:"Confidențialitate și date personale", html:"<p>Sistemele AI pot fi antrenate sau pot procesa date sensibile — conversații, documente, imagini. Principiile de bază includ minimizarea datelor colectate, anonimizarea acolo unde e posibil și transparența față de utilizator privind ce se întâmplă cu informațiile introduse.</p><p>În 2026, multe organizații adoptă politici clare despre ce date pot fi folosite pentru antrenarea ulterioară a modelelor și oferă opțiuni de excludere (opt-out).</p>"},
+        {id:"l3", title:"Reglementări globale și standarde 2026", html:"<p>Legislația privind AI clasifică sistemele după nivelul de risc — de la aplicații cu risc minim până la cele interzise (precum manipularea comportamentală dăunătoare).</p><p>Sistemele cu risc ridicat, folosite de exemplu în recrutare sau credit, au obligații suplimentare de transparență, documentare și supraveghere umană. Organizațiile care dezvoltă sau folosesc AI trebuie să înțeleagă în ce categorie de risc se încadrează soluțiile lor pentru a respecta cerințele aplicabile.</p>"},
+        {id:"l4", title:"Responsabilitate și transparență algoritmică", html:"<p>Cine răspunde când o decizie automatizată greșește? Practicile responsabile presupun păstrarea unui „om în buclă” pentru decizii cu impact semnificativ, documentarea modului în care un sistem a ajuns la o concluzie și posibilitatea de a contesta o decizie automatizată.</p><p>Transparența nu înseamnă publicarea codului sursă, ci comunicarea clară, pe înțelesul utilizatorului, a ce poate și ce nu poate face sistemul.</p>"}
+      ],
+      quiz:[
+        {q:"Ce cauzează adesea bias-ul într-un sistem AI?", opts:["Date de antrenament care reflectă tipare istorice inegale","Viteza de procesare a serverului","Lipsa de electricitate","Prea multă memorie RAM"], correct:0},
+        {q:"Ce presupune minimizarea datelor?", opts:["Colectarea a cât mai multe date posibil","Colectarea doar a datelor strict necesare","Ștergerea imediată a tuturor datelor","Ignorarea completă a confidențialității"], correct:1},
+        {q:"Cum clasifică reglementările moderne sistemele AI?", opts:["După culoarea interfeței","După nivelul de risc","După preț","După limba folosită"], correct:1},
+        {q:"Ce înseamnă „om în buclă” (human in the loop)?", opts:["Un utilizator care doar vizionează rezultate","Supravegherea/validarea umană a deciziilor automate importante","Un tip de model AI","O eroare de sistem"], correct:1}
+      ]
+    },
+    {
+      id:"agenti", title:"Agenți AI Autonomi", short:"Agenți AI",
+      icon:"🤖", color:"var(--blue)", colorHex:"#4C8DFF",
+      desc:"De la chatbot la agent: planificare, memorie, unelte și orchestrare.",
+      lessons:[
+        {id:"l1", title:"De la chatbot la agent: ce s-a schimbat", html:"<p>Un chatbot clasic răspunde la un mesaj și se oprește. Un agent AI poate primi un obiectiv, poate planifica pașii necesari, poate folosi unelte (căutare, cod, fișiere) și poate continua lucrul pe mai multe iterații până obiectivul este atins sau se cere confirmarea omului.</p><p>Această schimbare mută AI-ul de la „unealtă de conversație” la „colaborator care execută sarcini”.</p>"},
+        {id:"l2", title:"Arhitecturi de agenți: planificare, memorie, unelte", html:"<p>Un agent tipic are trei componente: un modul de planificare (descompune obiectivul în pași), o memorie (păstrează context despre ce s-a făcut deja) și acces la unelte externe (căutare web, execuție de cod, baze de date).</p><p>Calitatea unui agent depinde de cât de bine coordonează aceste trei componente — un agent cu memorie slabă repetă greșeli, unul fără unelte potrivite nu poate finaliza sarcini reale.</p>"},
+        {id:"l3", title:"Orchestrarea mai multor agenți (multi-agent)", html:"<p>Sarcinile complexe pot fi împărțite între mai mulți agenți specializați — unul cercetează, altul scrie, altul verifică. Coordonarea presupune un „orchestrator” care distribuie sarcinile și integrează rezultatele.</p><p>Avantajul este specializarea și paralelizarea muncii; riscul este propagarea erorilor între agenți dacă rezultatele intermediare nu sunt validate.</p>"},
+        {id:"l4", title:"Riscuri și control uman în bucla decizională", html:"<p>Autonomia extinsă a agenților ridică întrebări despre control: ce acțiuni poate lua un agent fără aprobare umană?</p><p>Bunele practici stabilesc puncte de control obligatorii pentru acțiuni ireversibile sau cu impact financiar/legal, limitează accesul la unelte sensibile și păstrează jurnale complete ale deciziilor agentului pentru audit ulterior.</p>"}
+      ],
+      quiz:[
+        {q:"Ce diferență majoră există între un chatbot clasic și un agent AI?", opts:["Nu există nicio diferență reală","Agentul poate planifica și acționa pe mai mulți pași, folosind unelte","Chatbotul este mereu mai rapid","Agentul nu poate răspunde la întrebări"], correct:1},
+        {q:"Care sunt cele trei componente tipice ale unui agent?", opts:["Culoare, sunet, viteză","Planificare, memorie, unelte","Preț, licență, server","Text, imagine, video"], correct:1},
+        {q:"Ce risc apare în sistemele multi-agent?", opts:["Costuri zero garantate","Propagarea erorilor între agenți fără validare","Lipsa completă de utilitate","Viteză infinită de execuție"], correct:1},
+        {q:"De ce sunt necesare puncte de control umane pentru acțiuni ireversibile?", opts:["Pentru a încetini inutil sistemul","Pentru a preveni consecințe grave fără supraveghere","Nu sunt necesare niciodată","Doar din motive estetice"], correct:1}
+      ]
+    },
+    {
+      id:"business", title:"AI în Productivitate și Afaceri", short:"AI în Afaceri",
+      icon:"📈", color:"var(--amber)", colorHex:"#FFB84D",
+      desc:"Automatizare, integrare în fluxuri de lucru și măsurarea impactului real.",
+      lessons:[
+        {id:"l1", title:"Automatizarea proceselor cu AI", html:"<p>AI-ul generativ poate automatiza sarcini repetitive: sortarea și rezumarea emailurilor, generarea de rapoarte din date brute, redactarea primelor variante de documente.</p><p>Cheia unei automatizări reușite este identificarea sarcinilor cu volum mare, reguli relativ clare și impact redus în caz de eroare minoră — astfel de sarcini oferă cel mai bun raport beneficiu/risc pentru automatizare timpurie.</p>"},
+        {id:"l2", title:"AI în marketing, vânzări și suport clienți", html:"<p>În marketing, AI-ul ajută la generarea de variante de conținut și segmentarea audienței. În vânzări, poate rezuma interacțiuni și sugera următorii pași.</p><p>În suportul clienți, agenții conversaționali rezolvă întrebări frecvente și escaladează către oameni cazurile complexe. Succesul depinde de calitatea informațiilor pe care sistemul le are la dispoziție și de claritatea limitelor sale.</p>"},
+        {id:"l3", title:"Integrarea AI în fluxurile de lucru existente", html:"<p>AI-ul aduce valoare reală doar când este integrat firesc în procesele deja existente, nu ca un instrument separat, izolat.</p><p>O bună integrare presupune conectarea la sursele de date relevante, definirea clară a cine validează rezultatele AI și instruirea echipei pentru a folosi eficient noile capacități, fără a înlocui judecata profesională.</p>"},
+        {id:"l4", title:"Măsurarea impactului și ROI", html:"<p>Evaluarea unei inițiative AI trebuie să meargă dincolo de „pare util” — se măsoară timp economisit, reducerea erorilor, satisfacția utilizatorilor și costurile reale (licențe, infrastructură, timp de instruire).</p><p>O inițiativă AI reușită are metrici clare definite înainte de implementare, nu doar impresii ulterioare.</p>"}
+      ],
+      quiz:[
+        {q:"Ce tip de sarcini sunt cele mai potrivite pentru automatizare timpurie cu AI?", opts:["Sarcini unice și foarte complexe","Sarcini repetitive, cu reguli clare și risc redus","Decizii strategice majore","Sarcini fără date disponibile"], correct:1},
+        {q:"Ce rol au agenții conversaționali în suportul clienți?", opts:["Înlocuiesc complet oamenii, mereu","Rezolvă întrebări frecvente și escaladează cazurile complexe","Nu au niciun rol util","Doar colectează date fără a răspunde"], correct:1},
+        {q:"Ce presupune o „bună integrare” a AI în fluxurile de lucru?", opts:["Izolarea completă de procesele existente","Conectare la date relevante și validare clară a rezultatelor","Eliminarea completă a judecății umane","Ignorarea instruirii echipei"], correct:1},
+        {q:"Ce ar trebui să includă evaluarea ROI a unei inițiative AI?", opts:["Doar impresii subiective","Timp economisit, reducerea erorilor, costuri reale","Nimic măsurabil în mod concret","Doar numărul de utilizatori înregistrați"], correct:1}
+      ]
+    },
+    {
+      id:"security", title:"Securitate și Confidențialitate în Era AI", short:"Securitate AI",
+      icon:"🛡️", color:"var(--pink)", colorHex:"#FF4FA3",
+      desc:"Amenințări specifice AI, protecția datelor și recunoașterea conținutului sintetic.",
+      lessons:[
+        {id:"l1", title:"Amenințări specifice sistemelor AI", html:"<p>„Prompt injection” apare când un conținut extern (o pagină web, un document) conține instrucțiuni ascunse menite să manipuleze comportamentul modelului. „Jailbreak” desemnează încercări de a ocoli restricțiile de siguranță ale unui model prin formulări creative.</p><p>Sistemele bine proiectate tratează conținutul extern ca date, nu ca instrucțiuni de încredere, și validează acțiunile sensibile înainte de execuție.</p>"},
+        {id:"l2", title:"Protecția datelor în aplicații bazate pe AI", html:"<p>Aplicațiile care folosesc AI trebuie să gestioneze responsabil datele introduse de utilizatori — criptare în tranzit și la stocare, acces limitat pe bază de nevoie, și politici clare privind cât timp sunt păstrate datele.</p><p>Este importantă și separarea datelor sensibile de fluxurile care ar putea fi folosite pentru antrenarea viitoare a modelelor, fără consimțământ explicit.</p>"},
+        {id:"l3", title:"Bune practici de securitate pentru echipe", html:"<p>Echipele care integrează AI ar trebui să limiteze permisiunile uneltelor conectate la modele (principiul minimului privilegiu), să testeze sistemele împotriva atacurilor cunoscute înainte de lansare și să mențină jurnale de audit pentru acțiunile automate.</p><p>Revizuirea periodică a configurațiilor de securitate previne acumularea de vulnerabilități pe termen lung.</p>"},
+        {id:"l4", title:"Cum recunoști conținut generat de AI", html:"<p>Conținutul sintetic — imagini, voce, video — a devenit tot mai greu de distins de cel real. Semnale utile includ inconsistențe vizuale fine (lumină, reflexii, mișcări nenaturale), lipsa unei surse verificabile și context suspect de diseminare.</p><p>Verificarea încrucișată cu surse oficiale rămâne cea mai sigură metodă de a evalua autenticitatea unui conținut sensibil.</p>"}
+      ],
+      quiz:[
+        {q:"Ce este „prompt injection”?", opts:["O tehnică de accelerare a modelului","Instrucțiuni ascunse în conținut extern menite să manipuleze modelul","Un tip de antrenament AI","O metodă de backup a datelor"], correct:1},
+        {q:"Ce principiu ar trebui aplicat permisiunilor uneltelor conectate la un model AI?", opts:["Acces total nerestricționat","Principiul minimului privilegiu","Fără nicio restricție de acces","Acces public pentru oricine"], correct:1},
+        {q:"Ce ar trebui să facă un sistem cu conținutul extern (pagini web, documente)?", opts:["Să-l trateze ca instrucțiuni de încredere","Să-l trateze ca date, nu ca instrucțiuni","Să-l ignore complet, mereu","Să-l execute automat fără verificare"], correct:1},
+        {q:"Care este cea mai sigură metodă de a verifica un conținut sensibil suspect?", opts:["Ghicit pe baza intuiției","Verificare încrucișată cu surse oficiale","Ignorarea completă a problemei","Distribuirea rapidă, fără verificare"], correct:1}
+      ]
+    }
+  ];
+
+  const BADGES = [
+    {id:"primul_pas", title:"Primul pas", desc:"Ai finalizat prima lecție", icon:"🌱",
+      check:(p)=> Object.values(p).some(c=>c.lessonsDone && c.lessonsDone.length>0)},
+    {id:"curs_finalizat", title:"Curs finalizat", desc:"Ai finalizat un curs complet", icon:"🏁",
+      check:(p)=> COURSES.some(c=>isCourseComplete(p,c.id))},
+    {id:"scor_perfect", title:"Scor perfect", desc:"Scor maxim la un quiz", icon:"⭐",
+      check:(p)=> Object.entries(p).some(([cid,st])=> st.quizDone && st.quizScore===COURSES.find(c=>c.id===cid).quiz.length)},
+    {id:"maratonist", title:"Maratonist", desc:"Ai finalizat 3 cursuri", icon:"🏃",
+      check:(p)=> COURSES.filter(c=>isCourseComplete(p,c.id)).length>=3},
+    {id:"expert_ai", title:"Expert AI 2026", desc:"Ai finalizat toate cursurile", icon:"🧠",
+      check:(p)=> COURSES.every(c=>isCourseComplete(p,c.id))}
+  ];
+
+  function isCourseComplete(progress, cid){
+    const st = progress[cid];
+    const course = COURSES.find(c=>c.id===cid);
+    if(!st || !course) return false;
+    const lessonsDone = (st.lessonsDone||[]).length >= course.lessons.length;
+    return lessonsDone && !!st.quizDone;
+  }
+  function courseProgressPct(progress, cid){
+    const st = progress[cid] || {};
+    const course = COURSES.find(c=>c.id===cid);
+    const lessonsFrac = (st.lessonsDone||[]).length / course.lessons.length;
+    const quizFrac = st.quizDone ? 1 : 0;
+    return Math.round((lessonsFrac*0.7 + quizFrac*0.3) * 100);
+  }
+
+  /* ============ STARE / STORAGE (localStorage, persistă în browserul utilizatorului) ============ */
+  const DB_KEY = "cursuri-ai-db-v1";
+  let db = {users:{}, current:null};
+
+  function loadDB(){
+    try{
+      const raw = localStorage.getItem(DB_KEY);
+      if(raw){
+        const parsed = JSON.parse(raw);
+        if(parsed && parsed.users) db = parsed;
+      }
+    }catch(e){
+      console.error("Eroare la citirea progresului salvat:", e);
+    }
+  }
+  function saveDB(){
+    try{
+      localStorage.setItem(DB_KEY, JSON.stringify(db));
+    }catch(e){
+      console.error("Eroare la salvare:", e);
+      toast("Nu am putut salva progresul. Încearcă din nou.");
+    }
+  }
+  function ensureUser(name){
+    if(!db.users[name]) db.users[name] = {progress:{}, badges:[]};
+  }
+  function currentUserState(){ return db.users[db.current]; }
+
+  let activeCourseId = null;
+  let activeLessonId = null;
+
+  /* ============ NAVIGARE ============ */
+  function showView(id){
+    document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+    document.getElementById("view-"+id).classList.add("active");
+    document.querySelectorAll("#mainTabs button").forEach(b=>{
+      b.classList.toggle("active", b.dataset.tab===id);
+    });
+    window.scrollTo({top:0, behavior:"instant" in window ? "instant":"auto"});
+  }
+
+  document.querySelectorAll("#mainTabs button").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const tab = btn.dataset.tab;
+      showView(tab);
+      if(tab==="badges") renderBadgesPage();
+    });
+  });
+  document.querySelectorAll(".link-btn[data-tab]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{ showView(btn.dataset.tab); renderBadgesPage(); });
+  });
+  document.querySelectorAll("[data-back='dashboard']").forEach(btn=>{
+    btn.addEventListener("click", ()=>{ showView("dashboard"); renderDashboard(); });
+  });
+
+  /* ============ AUTH ============ */
+  function renderAuthProfiles(){
+    const names = Object.keys(db.users);
+    const wrap = document.getElementById("existingProfiles");
+    const row = document.getElementById("profileChipRow");
+    row.innerHTML = "";
+    if(names.length===0){ wrap.classList.add("hidden"); return; }
+    wrap.classList.remove("hidden");
+    names.forEach(n=>{
+      const chip = document.createElement("button");
+      chip.className = "profile-pick";
+      chip.innerHTML = `<span class="avatar">${initials(n)}</span><span>${escapeHtml(n)}</span>`;
+      chip.addEventListener("click", ()=> selectUser(n));
+      row.appendChild(chip);
+    });
+  }
+  function initials(name){ return (name.trim().slice(0,2)||"??").toUpperCase(); }
+  function escapeHtml(s){ const d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
+
+  document.getElementById("startBtn").addEventListener("click", ()=>{
+    const input = document.getElementById("nameInput");
+    const name = input.value.trim();
+    if(!name){ input.focus(); return; }
+    selectUser(name);
+  });
+  document.getElementById("nameInput").addEventListener("keydown", e=>{
+    if(e.key==="Enter") document.getElementById("startBtn").click();
+  });
+  document.getElementById("switchUserBtn").addEventListener("click", ()=>{
+    db.current = null; saveDB();
+    document.getElementById("nameInput").value = "";
+    renderAuthProfiles();
+    showAuth();
+  });
+
+  function selectUser(name){
+    ensureUser(name);
+    db.current = name;
+    saveDB();
+    document.getElementById("userAvatar").textContent = initials(name);
+    document.getElementById("userName").textContent = name;
+    showView("dashboard");
+    renderDashboard();
+  }
+  function showAuth(){
+    document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+    document.getElementById("view-auth").classList.add("active");
+    document.querySelectorAll("#mainTabs button").forEach(b=>b.classList.remove("active"));
+  }
+
+  /* ============ DASHBOARD / HARTA NEURONALĂ ============ */
+  const NODE_POS = [
+    {x:100, y:340}, {x:270, y:130}, {x:440, y:320},
+    {x:610, y:120}, {x:770, y:300}, {x:890, y:110}
+  ];
+
+  function renderDashboard(){
+    const state = currentUserState();
+    if(!state) return;
+    const progress = state.progress;
+
+    // stat pills
+    const completed = COURSES.filter(c=>isCourseComplete(progress,c.id)).length;
+    const overallPct = Math.round(COURSES.reduce((s,c)=>s+courseProgressPct(progress,c.id),0)/COURSES.length);
+    document.getElementById("statRow").innerHTML = `
+      <div class="stat-pill"><span class="n">${overallPct}%</span><span class="l">Progres general</span></div>
+      <div class="stat-pill"><span class="n">${completed}/${COURSES.length}</span><span class="l">Cursuri complete</span></div>
+      <div class="stat-pill"><span class="n">${state.badges.length}/${BADGES.length}</span><span class="l">Insigne</span></div>
+    `;
+
+    // harta
+    const mapInner = document.getElementById("mapInner");
+    let svgLines = "";
+    for(let i=0;i<NODE_POS.length-1;i++){
+      const a = NODE_POS[i], b = NODE_POS[i+1];
+      const cx = (a.x+b.x)/2, cy = Math.min(a.y,b.y)-40;
+      svgLines += `<path class="map-line" d="M ${a.x} ${a.y} Q ${cx} ${cy} ${b.x} ${b.y}"/>`;
+      const courseA = COURSES[i];
+      const pctA = courseProgressPct(progress, courseA.id)/100;
+      if(pctA>0){
+        svgLines += `<path class="map-line-fill" stroke="${courseA.colorHex}" stroke-dasharray="1000" stroke-dashoffset="${1000-1000*pctA}" d="M ${a.x} ${a.y} Q ${cx} ${cy} ${b.x} ${b.y}"/>`;
+      }
+    }
+
+    let nodesHtml = "";
+    COURSES.forEach((course, i)=>{
+      const pos = NODE_POS[i];
+      const pct = courseProgressPct(progress, course.id);
+      nodesHtml += `
+        <button class="node" style="left:${pos.x}px; top:${pos.y}px;" data-course="${course.id}" aria-label="${escapeHtml(course.title)}, ${pct}% complet">
+          <div class="node-ring" style="background:conic-gradient(${course.colorHex} ${pct}%, var(--line) 0);">
+            <div class="node-inner">${course.icon}</div>
+            <div class="node-pct mono">${pct}%</div>
+          </div>
+          <div class="node-label">${course.short}</div>
+        </button>
+      `;
+    });
+
+    mapInner.innerHTML = `<svg viewBox="0 0 960 460">${svgLines}</svg>${nodesHtml}`;
+    mapInner.querySelectorAll(".node").forEach(btn=>{
+      btn.addEventListener("click", ()=> openCourse(btn.dataset.course));
+    });
+
+    // badge shelf (doar primele 5, ordonate)
+    document.getElementById("badgeRow").innerHTML = BADGES.map(b=>{
+      const unlocked = state.badges.includes(b.id);
+      return `<div class="badge-card ${unlocked?'unlocked':''}">
+        <div class="ic">${b.icon}</div>
+        <div class="t">${b.title}</div>
+        <div class="d">${b.desc}</div>
+      </div>`;
+    }).join("");
+
+    // course list
+    document.getElementById("courseList").innerHTML = COURSES.map(c=>{
+      const pct = courseProgressPct(progress, c.id);
+      return `<button class="course-card" data-course="${c.id}">
+        <div class="ic">${c.icon}</div>
+        <h4>${c.title}</h4>
+        <p>${c.desc}</p>
+        <div class="mini-bar"><div style="width:${pct}%; background:${c.colorHex};"></div></div>
+        <span class="mono" style="font-size:11px;color:var(--ink-soft);">${pct}% complet</span>
+      </button>`;
+    }).join("");
+    document.querySelectorAll("#courseList .course-card").forEach(btn=>{
+      btn.addEventListener("click", ()=> openCourse(btn.dataset.course));
+    });
+  }
+
+  /* ============ COURSE DETAIL ============ */
+  function openCourse(cid){
+    activeCourseId = cid;
+    const course = COURSES.find(c=>c.id===cid);
+    const progress = currentUserState().progress;
+    const st = progress[cid] || {lessonsDone:[], quizDone:false, quizScore:0};
+    const pct = courseProgressPct(progress, cid);
+
+    document.getElementById("courseHeader").innerHTML = `
+      <div class="ic-badge" style="background:${course.colorHex};">${course.icon}</div>
+      <div>
+        <h2>${course.title}</h2>
+        <p>${course.desc}</p>
+      </div>
+    `;
+    document.getElementById("courseProgressTrack").innerHTML = `<div style="width:${pct}%; background:${course.colorHex};"></div>`;
+
+    let rowsHtml = course.lessons.map((l,idx)=>{
+      const done = (st.lessonsDone||[]).includes(l.id);
+      return `<button class="lesson-row" data-lesson="${l.id}">
+        <span class="lesson-check ${done?'done':''}">${done?'✓':(idx+1)}</span>
+        <span class="lt">${l.title}</span>
+        <span class="la">${done?'Finalizată':'Neîncepută'}</span>
+      </button>`;
+    }).join("");
+
+    const quizDone = !!st.quizDone;
+    rowsHtml += `<button class="lesson-row quiz-row" id="quizEntry">
+        <span class="lesson-check ${quizDone?'done':''}">${quizDone?'✓':'Q'}</span>
+        <span class="lt">Quiz final — ${course.quiz.length} întrebări</span>
+        <span class="la">${quizDone? st.quizScore+'/'+course.quiz.length+' corecte' : 'Netentat'}</span>
+      </button>`;
+
+    document.getElementById("lessonGrid").innerHTML = rowsHtml;
+    document.querySelectorAll("#lessonGrid .lesson-row[data-lesson]").forEach(btn=>{
+      btn.addEventListener("click", ()=> openLesson(cid, btn.dataset.lesson));
+    });
+    document.getElementById("quizEntry").addEventListener("click", ()=> openQuiz(cid));
+
+    showView("course");
+  }
+
+  /* ============ LESSON VIEW ============ */
+  function openLesson(cid, lid){
+    activeCourseId = cid; activeLessonId = lid;
+    const course = COURSES.find(c=>c.id===cid);
+    const lesson = course.lessons.find(l=>l.id===lid);
+    const idx = course.lessons.findIndex(l=>l.id===lid);
+    const st = currentUserState().progress[cid] || {lessonsDone:[]};
+    const done = (st.lessonsDone||[]).includes(lid);
+
+    document.getElementById("lessonBody").innerHTML = `
+      <span class="mono" style="font-size:11px;color:var(--ink-soft);">${course.short.toUpperCase()} · LECȚIA ${idx+1}/${course.lessons.length}</span>
+      <h3>${lesson.title}</h3>
+      ${lesson.html}
+      <div class="lesson-nav">
+        <button class="btn-complete ${done?'done':''}" id="completeBtn">${done? '✓ Finalizată' : 'Marchează ca finalizată'}</button>
+        <button class="btn-ghost" id="nextLessonBtn">${idx<course.lessons.length-1 ? 'Lecția următoare →' : 'Mergi la quiz →'}</button>
+      </div>
+    `;
+    document.getElementById("completeBtn").addEventListener("click", ()=> completeLesson(cid, lid));
+    document.getElementById("nextLessonBtn").addEventListener("click", ()=>{
+      if(idx < course.lessons.length-1){
+        openLesson(cid, course.lessons[idx+1].id);
+      } else {
+        openQuiz(cid);
+      }
+    });
+    document.getElementById("lessonBackBtn").onclick = ()=> openCourse(cid);
+    showView("lesson");
+  }
+
+  function completeLesson(cid, lid){
+    const state = currentUserState();
+    if(!state.progress[cid]) state.progress[cid] = {lessonsDone:[], quizDone:false, quizScore:0};
+    const st = state.progress[cid];
+    if(!st.lessonsDone.includes(lid)){
+      st.lessonsDone.push(lid);
+      checkBadges();
+      saveDB();
+      openLesson(cid, lid); // re-render buton
+    }
+  }
+
+  /* ============ QUIZ VIEW ============ */
+  function openQuiz(cid){
+    activeCourseId = cid;
+    const course = COURSES.find(c=>c.id===cid);
+    let qHtml = `<span class="mono" style="font-size:11px;color:var(--ink-soft);">${course.short.toUpperCase()} · QUIZ FINAL</span><h3 style="margin-top:6px;">Verifică-ți cunoștințele</h3>`;
+    course.quiz.forEach((q, qi)=>{
+      qHtml += `<div class="quiz-q" data-qi="${qi}"><p class="qt">${qi+1}. ${q.q}</p>`;
+      q.opts.forEach((opt, oi)=>{
+        qHtml += `<label class="opt"><input type="radio" name="q${qi}" value="${oi}"><span>${opt}</span></label>`;
+      });
+      qHtml += `</div>`;
+    });
+    qHtml += `<button class="btn-primary" id="submitQuizBtn" style="max-width:220px;">Trimite răspunsurile</button><div id="quizResult"></div>`;
+
+    document.getElementById("quizCard").innerHTML = qHtml;
+    document.getElementById("submitQuizBtn").addEventListener("click", ()=> submitQuiz(cid));
+    document.getElementById("quizBackBtn").onclick = ()=> openCourse(cid);
+    showView("quiz");
+  }
+
+  function submitQuiz(cid){
+    const course = COURSES.find(c=>c.id===cid);
+    let score = 0;
+    let allAnswered = true;
+    course.quiz.forEach((q, qi)=>{
+      const selected = document.querySelector(`input[name="q${qi}"]:checked`);
+      const optionEls = document.querySelectorAll(`.quiz-q[data-qi="${qi}"] .opt`);
+      if(!selected){ allAnswered = false; return; }
+      const chosen = parseInt(selected.value, 10);
+      optionEls.forEach((el, oi)=>{
+        if(oi === q.correct) el.classList.add("correct");
+        else if(oi === chosen) el.classList.add("wrong");
+        el.style.pointerEvents = "none";
+      });
+      if(chosen === q.correct) score++;
+    });
+    if(!allAnswered){
+      toast("Răspunde la toate întrebările înainte de a trimite.");
+      return;
+    }
+    document.getElementById("submitQuizBtn").disabled = true;
+    document.getElementById("submitQuizBtn").style.opacity = 0.5;
+
+    const passed = score === course.quiz.length;
+    const resultDiv = document.getElementById("quizResult");
+    resultDiv.innerHTML = `<div class="quiz-result ${passed?'pass':'fail'}">
+      Ai obținut ${score}/${course.quiz.length} răspunsuri corecte. ${passed? '🎉 Scor perfect!' : 'Poți revedea lecțiile și încerca din nou oricând.'}
+    </div>`;
+
+    const state = currentUserState();
+    if(!state.progress[cid]) state.progress[cid] = {lessonsDone:[], quizDone:false, quizScore:0};
+    state.progress[cid].quizDone = true;
+    state.progress[cid].quizScore = Math.max(score, state.progress[cid].quizScore||0);
+    checkBadges();
+    saveDB();
+  }
+
+  /* ============ BADGES ============ */
+  function checkBadges(){
+    const state = currentUserState();
+    let newly = [];
+    BADGES.forEach(b=>{
+      if(!state.badges.includes(b.id) && b.check(state.progress)){
+        state.badges.push(b.id);
+        newly.push(b);
+      }
+    });
+    if(newly.length){
+      newly.forEach((b,i)=> setTimeout(()=> toast(`${b.icon} Insignă nouă: ${b.title}`), i*1600));
+    }
+    return newly;
+  }
+  function renderBadgesPage(){
+    const state = currentUserState();
+    if(!state) return;
+    document.getElementById("badgeGrid").innerHTML = BADGES.map(b=>{
+      const unlocked = state.badges.includes(b.id);
+      return `<div class="badge-card ${unlocked?'unlocked':''}" style="width:auto;">
+        <div class="ic">${b.icon}</div>
+        <div class="t">${b.title}</div>
+        <div class="d">${b.desc}</div>
+      </div>`;
+    }).join("");
+  }
+
+  /* ============ TOAST ============ */
+  let toastTimer = null;
+  function toast(msg){
+    const el = document.getElementById("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=> el.classList.remove("show"), 3200);
+  }
+
+  /* ============ INIT ============ */
+  async function init(){
+    await loadDB();
+    if(db.current && db.users[db.current]){
+      document.getElementById("userAvatar").textContent = initials(db.current);
+      document.getElementById("userName").textContent = db.current;
+      showView("dashboard");
+      renderDashboard();
+    } else {
+      renderAuthProfiles();
+      showAuth();
+    }
+  }
+  init();
+
+})();
+</script>
+</body>
+</html>

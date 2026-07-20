@@ -312,7 +312,6 @@
   </div>
   <nav class="tabs" id="mainTabs">
     <button data-tab="dashboard" class="active">Traseul meu</button>
-    <button data-tab="badges">Insigne</button>
   </nav>
   <div class="user-chip" id="userChip">
     <div class="avatar" id="userAvatar">?</div>
@@ -367,7 +366,6 @@
     <div class="badge-shelf">
       <div class="section-title">
         <h3>Insignele tale</h3>
-        <button class="link-btn" data-tab="badges">Vezi toate →</button>
       </div>
       <div class="badge-row" id="badgeRow"></div>
     </div>
@@ -396,17 +394,6 @@
   <section class="view" id="view-quiz">
     <button class="back-btn" id="quizBackBtn">← Înapoi la curs</button>
     <div class="quiz-card" id="quizCard"></div>
-  </section>
-
-  <!-- BADGES VIEW -->
-  <section class="view" id="view-badges">
-    <div class="dash-head">
-      <div>
-        <h2>Toate insignele</h2>
-        <p>Deblochezi insigne pe măsură ce avansezi prin cursuri și quiz-uri.</p>
-      </div>
-    </div>
-    <div class="badge-grid" id="badgeGrid"></div>
   </section>
 
 </main>
@@ -597,11 +584,8 @@
     btn.addEventListener("click", ()=>{
       const tab = btn.dataset.tab;
       showView(tab);
-      if(tab==="badges") renderBadgesPage();
+      if(tab==="dashboard") renderDashboard();
     });
-  });
-  document.querySelectorAll(".link-btn[data-tab]").forEach(btn=>{
-    btn.addEventListener("click", ()=>{ showView(btn.dataset.tab); renderBadgesPage(); });
   });
   document.querySelectorAll("[data-back='dashboard']").forEach(btn=>{
     btn.addEventListener("click", ()=>{ showView("dashboard"); renderDashboard(); });
@@ -657,7 +641,7 @@
     document.querySelectorAll("#mainTabs button").forEach(b=>b.classList.remove("active"));
   }
 
-  /* ============ DASHBOARD / HARTA NEURONALĂ ============ */
+  /* ============ DASHBOARD / TRASEUL ÎN AI ============ */
   const NODE_POS = [
     {x:100, y:340}, {x:270, y:130}, {x:440, y:320},
     {x:610, y:120}, {x:770, y:300}, {x:890, y:110}
@@ -677,7 +661,7 @@
       <div class="stat-pill"><span class="n">${state.badges.length}/${BADGES.length}</span><span class="l">Insigne</span></div>
     `;
 
-    // harta
+    // traseul
     const mapInner = document.getElementById("mapInner");
     let svgLines = "";
     for(let i=0;i<NODE_POS.length-1;i++){
@@ -711,7 +695,7 @@
       btn.addEventListener("click", ()=> openCourse(btn.dataset.course));
     });
 
-    // badge shelf (doar primele 5, ordonate)
+    // badge shelf
     document.getElementById("badgeRow").innerHTML = BADGES.map(b=>{
       const unlocked = state.badges.includes(b.id);
       return `<div class="badge-card ${unlocked?'unlocked':''}">
@@ -892,18 +876,6 @@
       newly.forEach((b,i)=> setTimeout(()=> toast(`${b.icon} Insignă nouă: ${b.title}`), i*1600));
     }
     return newly;
-  }
-  function renderBadgesPage(){
-    const state = currentUserState();
-    if(!state) return;
-    document.getElementById("badgeGrid").innerHTML = BADGES.map(b=>{
-      const unlocked = state.badges.includes(b.id);
-      return `<div class="badge-card ${unlocked?'unlocked':''}" style="width:auto;">
-        <div class="ic">${b.icon}</div>
-        <div class="t">${b.title}</div>
-        <div class="d">${b.desc}</div>
-      </div>`;
-    }).join("");
   }
 
   /* ============ TOAST ============ */

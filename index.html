@@ -1007,7 +1007,11 @@
     const resultDiv = document.getElementById("quizResult");
     resultDiv.innerHTML = `<div class="quiz-result ${passed?'pass':'fail'}">
       Ai obținut ${score}/${course.quiz.length} răspunsuri corecte. ${passed? '🎉 Scor perfect!' : 'Poți revedea lecțiile și încerca din nou oricând.'}
-    </div>`;
+    </div>
+    ${!passed ? `<button class="btn-ghost" id="retryQuizBtn" style="margin-top:14px;">↻ Reia quiz</button>` : ''}`;
+    if(!passed){
+      document.getElementById("retryQuizBtn").addEventListener("click", ()=> openQuiz(cid));
+    }
 
     const state = currentUserState();
     if(!state.progress[cid]) state.progress[cid] = {lessonsDone:[], quizDone:false, quizScore:0, ratings:{}};

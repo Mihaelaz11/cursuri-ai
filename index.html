@@ -1020,7 +1020,7 @@
     state.progress[cid].quizScore = Math.max(score, state.progress[cid].quizScore||0);
     const newBadges = checkBadges();
     const isNowComplete = isCourseComplete(state.progress, cid);
-    if((!wasComplete && isNowComplete) || newBadges.length){ celebrate(); }
+    if(passed || (!wasComplete && isNowComplete) || newBadges.length){ celebrate(); }
     saveDB();
   }
 

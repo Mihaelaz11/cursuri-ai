@@ -36,6 +36,29 @@
     --header-bg: rgba(18,16,38,0.85);
     --shadow: 0 8px 24px -8px rgba(0,0,0,0.55);
   }
+  /* Culori explicite în dark mode (butoanele pot ignora moștenirea) */
+  /* Fix WebKit: fundalul html/body cu valori fixe, nu variabile,
+     altfel rămâne deschis când se comută tema (bug istoric) */
+  html[data-theme="dark"]{ background-color:#121026; }
+  html[data-theme="dark"] body{
+    background-color:#121026;
+    background-image:
+      radial-gradient(circle at 8% 8%, rgba(124,92,252,0.16), transparent 40%),
+      radial-gradient(circle at 92% 15%, rgba(255,107,91,0.12), transparent 40%);
+    color:#F1F0FA;
+  }
+  :root[data-theme="dark"] .dash-head h2,
+  :root[data-theme="dark"] .dash-head p,
+  :root[data-theme="dark"] .section-title h3,
+  :root[data-theme="dark"] .node-label,
+  :root[data-theme="dark"] .lesson-row .lt,
+  :root[data-theme="dark"] .lesson-body h3,
+  :root[data-theme="dark"] .lesson-body p,
+  :root[data-theme="dark"] .course-card h4{ color:var(--ink); }
+  :root[data-theme="dark"] .lesson-row,
+  :root[data-theme="dark"] .course-card,
+  :root[data-theme="dark"] .lesson-body,
+  :root[data-theme="dark"] .map-section{ background-color:var(--bg-card); }
   html{ background-color:var(--bg); transition: background-color .2s ease; }
   body, .brand-mark, header.topbar, .badge-card, .course-card, .lesson-row, .stat-pill,
   .auth-card, .map-section, .lesson-body, .quiz-card, .report-card, nav.tabs, .user-chip,
@@ -149,6 +172,18 @@
     transition:transform .12s ease;
   }
   .btn-primary:hover{ transform:translateY(-1px); }
+  .btn-primary:disabled{
+    background:var(--line); color:var(--ink-soft);
+    box-shadow:none; cursor:default; transform:none;
+  }
+  .btn-primary:disabled:hover{ transform:none; }
+  .lesson-done-label{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:13px; font-weight:700; color:#1a8a67;
+    background:rgba(47,217,166,.14); padding:9px 14px; border-radius:12px;
+  }
+  :root[data-theme="dark"] .lesson-done-label{ color:var(--mint); }
+  .lesson-hint{ font-size:12px; color:var(--ink-soft); align-self:center; }
   .existing-profiles{ margin-top:22px; }
   .existing-profiles p{ font-size:12.5px; color:var(--ink-soft); font-weight:600; margin-bottom:10px;}
   .profile-chip-row{ display:flex; flex-wrap:wrap; gap:8px; }
@@ -390,7 +425,7 @@
   <div class="user-chip" id="userChip">
     <div class="avatar" id="userAvatar">?</div>
     <span id="userName" class="mono" style="font-size:13px;font-weight:600;"></span>
-    <button id="reportBtn">Raport</button>
+    <button id="reportBtn">📊 Raport</button>
     <button id="switchUserBtn">Schimbă</button>
   </div>
 </header>
@@ -906,13 +941,23 @@
           ${[1,2,3,4,5].map(n=>`<button class="star-btn ${n<=currentRating?'filled':''}" data-value="${n}" aria-label="${n} din 5 stele">★</button>`).join("")}
         </div>
       </div>
-      <div class="lesson-nav">
-        <button class="btn-complete ${done?'done':''}" id="completeBtn">${done? '✓ Finalizată' : 'Marchează ca finalizată'}</button>
-        <button class="btn-ghost" id="nextLessonBtn">${idx<course.lessons.length-1 ? 'Lecția următoare →' : 'Mergi la quiz →'}</button>
+      <div style="margin-top:22px;">
+        ${done
+          ? '<span class="lesson-done-label">✓ Lecție finalizată</span>'
+          : '<span class="lesson-hint">Lecția se marchează automat când treci mai departe</span>'}
+      </div>
+      <div class="lesson-nav" style="margin-top:14px;">
+        <button class="btn-ghost" id="prevLessonBtn">${idx>0 ? '← Lecția anterioară' : '← Înapoi la curs'}</button>
+        <button class="btn-complete" id="nextLessonBtn">${idx<course.lessons.length-1 ? 'Lecția următoare →' : 'Mergi la quiz →'}</button>
       </div>
     `;
-    document.getElementById("completeBtn").addEventListener("click", ()=> completeLesson(cid, lid));
+    document.getElementById("prevLessonBtn").addEventListener("click", ()=>{
+      // navigare înapoi, fără marcarea lecției curente
+      if(idx > 0) openLesson(cid, course.lessons[idx-1].id);
+      else openCourse(cid);
+    });
     document.getElementById("nextLessonBtn").addEventListener("click", ()=>{
+      completeLesson(cid, lid, {rerender:false}); // marchează automat lecția curentă
       if(idx < course.lessons.length-1){
         openLesson(cid, course.lessons[idx+1].id);
       } else {
@@ -935,18 +980,16 @@
     openLesson(cid, lid);
   }
 
-  function completeLesson(cid, lid){
+  function completeLesson(cid, lid, opts){
+    const rerender = !opts || opts.rerender !== false;
     const state = currentUserState();
     if(!state.progress[cid]) state.progress[cid] = {lessonsDone:[], quizDone:false, quizScore:0, ratings:{}};
     const st = state.progress[cid];
     if(!st.lessonsDone.includes(lid)){
-      const wasComplete = isCourseComplete(state.progress, cid);
       st.lessonsDone.push(lid);
-      const newBadges = checkBadges();
-      const isNowComplete = isCourseComplete(state.progress, cid);
-      if((!wasComplete && isNowComplete) || newBadges.length){ celebrate(); }
+      checkBadges(); // doar toast-uri de insigne, fără confetti
       saveDB();
-      openLesson(cid, lid); // re-render buton
+      if(rerender) openLesson(cid, lid);
     }
   }
 
@@ -966,7 +1009,30 @@
     qHtml += `<button class="btn-primary" id="submitQuizBtn" style="max-width:220px;">Trimite răspunsurile</button><div id="quizResult"></div>`;
 
     document.getElementById("quizCard").innerHTML = qHtml;
-    document.getElementById("submitQuizBtn").addEventListener("click", ()=> submitQuiz(cid));
+    const submitBtn = document.getElementById("submitQuizBtn");
+    submitBtn.addEventListener("click", ()=> submitQuiz(cid));
+
+    // buton inteligent: dezactivat până se răspunde la toate întrebările
+    function updateSubmitState(){
+      const total = currentQuizData.length;
+      let answered = 0;
+      for(let i=0; i<total; i++){
+        if(document.querySelector(`input[name="q${i}"]:checked`)) answered++;
+      }
+      const remaining = total - answered;
+      if(remaining === 0){
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Trimite răspunsurile";
+      } else {
+        submitBtn.disabled = true;
+        submitBtn.textContent = remaining === 1 ? "Mai ai 1 întrebare" : `Mai ai ${remaining} întrebări`;
+      }
+    }
+    document.querySelectorAll("#quizCard input[type=radio]").forEach(r=>{
+      r.addEventListener("change", updateSubmitState);
+    });
+    updateSubmitState();
+
     document.getElementById("quizBackBtn").onclick = ()=> openCourse(cid);
     showView("quiz");
   }
@@ -1000,8 +1066,7 @@
       toast("Răspunde la toate întrebările înainte de a trimite.");
       return;
     }
-    document.getElementById("submitQuizBtn").disabled = true;
-    document.getElementById("submitQuizBtn").style.opacity = 0.5;
+    document.getElementById("submitQuizBtn").style.display = "none";
 
     const passed = score === course.quiz.length;
     const resultDiv = document.getElementById("quizResult");
@@ -1015,12 +1080,10 @@
 
     const state = currentUserState();
     if(!state.progress[cid]) state.progress[cid] = {lessonsDone:[], quizDone:false, quizScore:0, ratings:{}};
-    const wasComplete = isCourseComplete(state.progress, cid);
     state.progress[cid].quizDone = true;
     state.progress[cid].quizScore = Math.max(score, state.progress[cid].quizScore||0);
-    const newBadges = checkBadges();
-    const isNowComplete = isCourseComplete(state.progress, cid);
-    if(passed || (!wasComplete && isNowComplete) || newBadges.length){ celebrate(); }
+    checkBadges();
+    if(passed){ celebrate(); } // confetti DOAR la scor perfect (toate cele 4 corecte)
     saveDB();
   }
 

@@ -36,7 +36,7 @@
     --header-bg: rgba(18,16,38,0.85);
     --shadow: 0 8px 24px -8px rgba(0,0,0,0.55);
   }
-  html{ transition: background-color .2s ease; }
+  html{ background-color:var(--bg); transition: background-color .2s ease; }
   body, .brand-mark, header.topbar, .badge-card, .course-card, .lesson-row, .stat-pill,
   .auth-card, .map-section, .lesson-body, .quiz-card, .report-card, nav.tabs, .user-chip,
   .back-btn, .btn-ghost, .profile-pick{
@@ -45,10 +45,10 @@
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
-    background:
+    background-color:var(--bg);
+    background-image:
       radial-gradient(circle at 8% 8%, rgba(124,92,252,0.08), transparent 40%),
-      radial-gradient(circle at 92% 15%, rgba(255,107,91,0.08), transparent 40%),
-      var(--bg);
+      radial-gradient(circle at 92% 15%, rgba(255,107,91,0.08), transparent 40%);
     color:var(--ink);
     font-family:var(--font-body);
     min-height:100vh;
@@ -162,7 +162,7 @@
 
   /* ---------- Dashboard ---------- */
   .dash-head{ display:flex; justify-content:space-between; align-items:flex-end; gap:20px; flex-wrap:wrap; margin-bottom:6px;}
-  .dash-head h2{ font-size:30px; margin:0 0 4px;}
+  .dash-head h2{ font-size:30px; margin:0 0 4px; color:var(--ink);}
   .title-row{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
   .title-row h2{ margin:0; }
   .btn-continue{
@@ -249,7 +249,7 @@
   .course-header .ic-badge{
     width:56px;height:56px;border-radius:16px; display:flex;align-items:center;justify-content:center; font-size:26px; color:#fff; flex-shrink:0;
   }
-  .course-header h2{ margin:0 0 4px; font-size:24px;}
+  .course-header h2{ margin:0 0 4px; font-size:24px; color:var(--ink);}
   .course-header p{ margin:0; color:var(--ink-soft); font-size:14px; max-width:560px;}
   .progress-track{ background:var(--line); border-radius:999px; height:10px; width:100%; max-width:420px; overflow:hidden; margin-top:10px;}
   .progress-track > div{ height:100%; border-radius:999px; transition:width .3s ease; }
@@ -270,7 +270,7 @@
   .quiz-row{ margin-top:6px; border-style:dashed; }
 
   .lesson-body{ background:var(--bg-card); border:1.5px solid var(--line); border-radius:20px; padding:28px; margin-top:18px; max-width:720px;}
-  .lesson-body h3{ margin-top:0; font-size:21px;}
+  .lesson-body h3{ margin-top:0; font-size:21px; color:var(--ink);}
   .lesson-body p{ font-size:15px; color:var(--ink); }
   .lesson-nav{ display:flex; justify-content:space-between; margin-top:26px; gap:10px; flex-wrap:wrap;}
   .rating-block{ margin-top:22px; padding-top:18px; border-top:1px dashed var(--line); }
@@ -785,7 +785,7 @@
     const continueTarget = findContinueTarget(progress);
     const continueWrap = document.getElementById("continueBtnWrap");
     if(continueTarget){
-      continueWrap.innerHTML = `<button class="btn-continue" id="continueBtn">▶ Continuă de unde ai rămas</button>`;
+      continueWrap.innerHTML = `<button class="btn-continue" id="continueBtn">▶ Continuă</button>`;
       document.getElementById("continueBtn").addEventListener("click", ()=>{
         if(continueTarget.type === 'lesson') openLesson(continueTarget.cid, continueTarget.lid);
         else openQuiz(continueTarget.cid);

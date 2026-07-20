@@ -239,6 +239,12 @@
   .lesson-body h3{ margin-top:0; font-size:21px;}
   .lesson-body p{ font-size:15px; color:var(--ink); }
   .lesson-nav{ display:flex; justify-content:space-between; margin-top:26px; gap:10px; flex-wrap:wrap;}
+  .rating-block{ margin-top:22px; padding-top:18px; border-top:1px dashed var(--line); }
+  .rating-label{ font-size:13px; font-weight:600; color:var(--ink-soft); display:block; margin-bottom:8px; }
+  .stars{ display:flex; gap:4px; }
+  .star-btn{ background:none; border:none; font-size:26px; line-height:1; color:var(--line); padding:2px; transition:color .12s ease, transform .12s ease; }
+  .star-btn:hover{ transform:scale(1.15); }
+  .star-btn.filled{ color:var(--amber); }
   .btn-ghost{
     border:1.5px solid var(--line); background:#fff; padding:11px 18px; border-radius:12px; font-weight:700; font-size:13.5px; color:var(--ink);
   }
@@ -269,6 +275,21 @@
   /* ---------- Badges page ---------- */
   .badge-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:14px; margin-top:18px;}
 
+  /* ---------- Report page ---------- */
+  .report-grid{ display:grid; gap:16px; margin-top:10px; }
+  .report-card{ background:#fff; border:1.5px solid var(--line); border-radius:16px; padding:18px; }
+  .report-card-head{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .report-card-head h4{ margin:0; font-size:15px; flex-grow:1; }
+  .report-card-head .ic{ font-size:20px; }
+  .report-card-head .mono{ font-size:12px; color:var(--ink-soft); }
+  .report-lessons{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; }
+  .report-lessons li{ display:flex; align-items:center; gap:10px; font-size:13.5px; }
+  .rl-status{ width:18px; text-align:center; font-weight:700; color:var(--ink-soft); flex-shrink:0; }
+  .rl-status.done{ color:var(--mint); }
+  .rl-title{ flex-grow:1; }
+  .rl-rating{ font-size:12px; color:var(--amber); letter-spacing:1px; white-space:nowrap; }
+  .report-quiz{ margin-top:10px; font-size:12.5px; color:var(--ink-soft); font-family:var(--font-mono); }
+
   /* ---------- Toast ---------- */
   #toast{
     position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px);
@@ -285,6 +306,9 @@
     .dash-head{ flex-direction:column; align-items:flex-start; }
     header.topbar{ padding:12px 14px; }
     nav.tabs button{ padding:7px 10px; font-size:12.5px;}
+    .user-chip{ padding:6px 6px 6px 10px; }
+    .user-chip #userName{ display:none; }
+    .user-chip button{ padding:6px 9px; font-size:11.5px; }
   }
   @media (prefers-reduced-motion: reduce){
     *{ animation:none !important; transition:none !important; }
@@ -312,10 +336,12 @@
   </div>
   <nav class="tabs" id="mainTabs">
     <button data-tab="dashboard" class="active">Traseul meu</button>
+    <button data-tab="badges">Insigne</button>
   </nav>
   <div class="user-chip" id="userChip">
     <div class="avatar" id="userAvatar">?</div>
     <span id="userName" class="mono" style="font-size:13px;font-weight:600;"></span>
+    <button id="reportBtn">Raport</button>
     <button id="switchUserBtn">Schimbă</button>
   </div>
 </header>
@@ -363,13 +389,6 @@
       <div class="map-inner" id="mapInner"></div>
     </div>
 
-    <div class="badge-shelf">
-      <div class="section-title">
-        <h3>Insignele tale</h3>
-      </div>
-      <div class="badge-row" id="badgeRow"></div>
-    </div>
-
     <div class="course-strip">
       <div class="section-title"><h3>Toate cursurile</h3></div>
       <div class="course-list" id="courseList"></div>
@@ -396,11 +415,29 @@
     <div class="quiz-card" id="quizCard"></div>
   </section>
 
+  <!-- BADGES VIEW -->
+  <section class="view" id="view-badges">
+    <div class="dash-head">
+      <div>
+        <h2>Toate insignele</h2>
+        <p>Deblochezi insigne pe măsură ce avansezi prin cursuri și quiz-uri.</p>
+      </div>
+    </div>
+    <div class="badge-grid" id="badgeGrid"></div>
+  </section>
+
+  <!-- REPORT VIEW -->
+  <section class="view" id="view-report">
+    <button class="back-btn" data-back="dashboard">← Înapoi la traseu</button>
+    <div id="reportContent"></div>
+  </section>
+
 </main>
 
 <footer>Cursuri AI — proiect educațional despre AI · progresul este salvat pentru profilul tău.</footer>
 <div id="toast"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 (function(){
   "use strict";
@@ -585,10 +622,15 @@
       const tab = btn.dataset.tab;
       showView(tab);
       if(tab==="dashboard") renderDashboard();
+      if(tab==="badges") renderBadgesPage();
     });
   });
   document.querySelectorAll("[data-back='dashboard']").forEach(btn=>{
     btn.addEventListener("click", ()=>{ showView("dashboard"); renderDashboard(); });
+  });
+  document.getElementById("reportBtn").addEventListener("click", ()=>{
+    showView("report");
+    renderReport();
   });
 
   /* ============ AUTH ============ */
@@ -695,16 +737,6 @@
       btn.addEventListener("click", ()=> openCourse(btn.dataset.course));
     });
 
-    // badge shelf
-    document.getElementById("badgeRow").innerHTML = BADGES.map(b=>{
-      const unlocked = state.badges.includes(b.id);
-      return `<div class="badge-card ${unlocked?'unlocked':''}">
-        <div class="ic">${b.icon}</div>
-        <div class="t">${b.title}</div>
-        <div class="d">${b.desc}</div>
-      </div>`;
-    }).join("");
-
     // course list
     document.getElementById("courseList").innerHTML = COURSES.map(c=>{
       const pct = courseProgressPct(progress, c.id);
@@ -726,7 +758,7 @@
     activeCourseId = cid;
     const course = COURSES.find(c=>c.id===cid);
     const progress = currentUserState().progress;
-    const st = progress[cid] || {lessonsDone:[], quizDone:false, quizScore:0};
+    const st = progress[cid] || {lessonsDone:[], quizDone:false, quizScore:0, ratings:{}};
     const pct = courseProgressPct(progress, cid);
 
     document.getElementById("courseHeader").innerHTML = `
@@ -769,13 +801,20 @@
     const course = COURSES.find(c=>c.id===cid);
     const lesson = course.lessons.find(l=>l.id===lid);
     const idx = course.lessons.findIndex(l=>l.id===lid);
-    const st = currentUserState().progress[cid] || {lessonsDone:[]};
+    const st = currentUserState().progress[cid] || {lessonsDone:[], ratings:{}};
     const done = (st.lessonsDone||[]).includes(lid);
+    const currentRating = (st.ratings||{})[lid] || 0;
 
     document.getElementById("lessonBody").innerHTML = `
       <span class="mono" style="font-size:11px;color:var(--ink-soft);">${course.short.toUpperCase()} · LECȚIA ${idx+1}/${course.lessons.length}</span>
       <h3>${lesson.title}</h3>
       ${lesson.html}
+      <div class="rating-block">
+        <span class="rating-label">Cât de utilă a fost această lecție?</span>
+        <div class="stars" id="starsRow">
+          ${[1,2,3,4,5].map(n=>`<button class="star-btn ${n<=currentRating?'filled':''}" data-value="${n}" aria-label="${n} din 5 stele">★</button>`).join("")}
+        </div>
+      </div>
       <div class="lesson-nav">
         <button class="btn-complete ${done?'done':''}" id="completeBtn">${done? '✓ Finalizată' : 'Marchează ca finalizată'}</button>
         <button class="btn-ghost" id="nextLessonBtn">${idx<course.lessons.length-1 ? 'Lecția următoare →' : 'Mergi la quiz →'}</button>
@@ -789,13 +828,25 @@
         openQuiz(cid);
       }
     });
+    document.querySelectorAll("#starsRow .star-btn").forEach(btn=>{
+      btn.addEventListener("click", ()=> rateLesson(cid, lid, parseInt(btn.dataset.value,10)));
+    });
     document.getElementById("lessonBackBtn").onclick = ()=> openCourse(cid);
     showView("lesson");
   }
 
+  function rateLesson(cid, lid, value){
+    const state = currentUserState();
+    if(!state.progress[cid]) state.progress[cid] = {lessonsDone:[], quizDone:false, quizScore:0, ratings:{}};
+    if(!state.progress[cid].ratings) state.progress[cid].ratings = {};
+    state.progress[cid].ratings[lid] = value;
+    saveDB();
+    openLesson(cid, lid);
+  }
+
   function completeLesson(cid, lid){
     const state = currentUserState();
-    if(!state.progress[cid]) state.progress[cid] = {lessonsDone:[], quizDone:false, quizScore:0};
+    if(!state.progress[cid]) state.progress[cid] = {lessonsDone:[], quizDone:false, quizScore:0, ratings:{}};
     const st = state.progress[cid];
     if(!st.lessonsDone.includes(lid)){
       st.lessonsDone.push(lid);
@@ -855,7 +906,7 @@
     </div>`;
 
     const state = currentUserState();
-    if(!state.progress[cid]) state.progress[cid] = {lessonsDone:[], quizDone:false, quizScore:0};
+    if(!state.progress[cid]) state.progress[cid] = {lessonsDone:[], quizDone:false, quizScore:0, ratings:{}};
     state.progress[cid].quizDone = true;
     state.progress[cid].quizScore = Math.max(score, state.progress[cid].quizScore||0);
     checkBadges();
@@ -876,6 +927,120 @@
       newly.forEach((b,i)=> setTimeout(()=> toast(`${b.icon} Insignă nouă: ${b.title}`), i*1600));
     }
     return newly;
+  }
+  function renderBadgesPage(){
+    const state = currentUserState();
+    if(!state) return;
+    document.getElementById("badgeGrid").innerHTML = BADGES.map(b=>{
+      const unlocked = state.badges.includes(b.id);
+      return `<div class="badge-card ${unlocked?'unlocked':''}" style="width:auto;">
+        <div class="ic">${b.icon}</div>
+        <div class="t">${b.title}</div>
+        <div class="d">${b.desc}</div>
+      </div>`;
+    }).join("");
+  }
+
+  /* ============ RAPORT ============ */
+  function starsText(n){ return n>0 ? "★".repeat(n) + "☆".repeat(5-n) : ""; }
+
+  function renderReport(){
+    const state = currentUserState();
+    if(!state) return;
+    const progress = state.progress;
+    const completed = COURSES.filter(c=>isCourseComplete(progress,c.id)).length;
+    const overallPct = Math.round(COURSES.reduce((s,c)=>s+courseProgressPct(progress,c.id),0)/COURSES.length);
+
+    let html = `
+      <div class="dash-head">
+        <div>
+          <h2>Raportul tău</h2>
+          <p>Progresul complet pentru ${escapeHtml(db.current)}: ${overallPct}% general, ${completed}/${COURSES.length} cursuri finalizate, ${state.badges.length}/${BADGES.length} insigne.</p>
+        </div>
+      </div>
+      <div class="report-grid">
+    `;
+    COURSES.forEach(c=>{
+      const st = progress[c.id] || {lessonsDone:[], quizDone:false, quizScore:0, ratings:{}};
+      const pct = courseProgressPct(progress, c.id);
+      html += `<div class="report-card">
+        <div class="report-card-head">
+          <span class="ic">${c.icon}</span>
+          <h4>${c.title}</h4>
+          <span class="mono">${pct}%</span>
+        </div>
+        <ul class="report-lessons">`;
+      c.lessons.forEach(l=>{
+        const done = (st.lessonsDone||[]).includes(l.id);
+        const rating = (st.ratings||{})[l.id] || 0;
+        html += `<li>
+          <span class="rl-status ${done?'done':''}">${done?'✓':'—'}</span>
+          <span class="rl-title">${l.title}</span>
+          <span class="rl-rating">${starsText(rating)}</span>
+        </li>`;
+      });
+      html += `</ul>
+        <div class="report-quiz">Quiz: ${st.quizDone? st.quizScore+'/'+c.quiz.length+' corecte' : 'netentat'}</div>
+      </div>`;
+    });
+    html += `</div>
+      <button class="btn-primary" id="exportReportBtn" style="max-width:260px;margin-top:24px;">⬇ Exportă raport (Excel)</button>
+    `;
+    document.getElementById("reportContent").innerHTML = html;
+    document.getElementById("exportReportBtn").addEventListener("click", exportReport);
+  }
+
+  function exportReport(){
+    const state = currentUserState();
+    if(!state) return;
+    const progress = state.progress;
+    const completed = COURSES.filter(c=>isCourseComplete(progress,c.id)).length;
+    const overallPct = Math.round(COURSES.reduce((s,c)=>s+courseProgressPct(progress,c.id),0)/COURSES.length);
+
+    // Foaia 1: Rezumat
+    const summaryRows = [
+      ["RAPORT DE PROGRES"],
+      ["Utilizator", db.current],
+      ["Generat", new Date().toLocaleString('ro-RO')],
+      [],
+      ["Progres general (%)", overallPct],
+      ["Cursuri complete", `${completed}/${COURSES.length}`],
+      ["Insigne deblocate", `${state.badges.length}/${BADGES.length}`],
+      [],
+      ["Insigne deblocate:"]
+    ];
+    const unlockedBadges = BADGES.filter(b=>state.badges.includes(b.id));
+    if(unlockedBadges.length===0){
+      summaryRows.push(["(niciuna încă)"]);
+    } else {
+      unlockedBadges.forEach(b=> summaryRows.push([b.title, b.desc]));
+    }
+
+    // Foaia 2: Lecții, detaliat
+    const lessonRows = [["Curs","Lecție","Finalizată","Rating (1-5)","Scor Quiz"]];
+    COURSES.forEach(c=>{
+      const st = progress[c.id] || {lessonsDone:[], quizDone:false, quizScore:0, ratings:{}};
+      const quizText = st.quizDone ? `${st.quizScore}/${c.quiz.length}` : "netentat";
+      c.lessons.forEach(l=>{
+        const done = (st.lessonsDone||[]).includes(l.id);
+        const rating = (st.ratings||{})[l.id] || "";
+        lessonRows.push([c.title, l.title, done? "Da":"Nu", rating, quizText]);
+      });
+    });
+
+    if(typeof XLSX === "undefined"){
+      toast("Nu am putut încărca librăria Excel. Verifică conexiunea la internet.");
+      return;
+    }
+    const wb = XLSX.utils.book_new();
+    const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
+    wsSummary['!cols'] = [{wch:24},{wch:40}];
+    const wsLessons = XLSX.utils.aoa_to_sheet(lessonRows);
+    wsLessons['!cols'] = [{wch:28},{wch:44},{wch:12},{wch:14},{wch:14}];
+    XLSX.utils.book_append_sheet(wb, wsSummary, "Rezumat");
+    XLSX.utils.book_append_sheet(wb, wsLessons, "Lecții");
+    XLSX.writeFile(wb, `raport-${db.current.replace(/\s+/g,'_')}.xlsx`);
+    toast('Raportul a fost descărcat.');
   }
 
   /* ============ TOAST ============ */

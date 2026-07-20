@@ -10,7 +10,9 @@
     --bg-card:#FFFFFF;
     --ink:#1B1B3A;
     --ink-soft:#5B5A82;
+    --pill-dark:#1B1B3A;
     --line:#E4E1F5;
+    --header-bg: rgba(247,245,255,0.85);
     --violet:#7C5CFC;
     --violet-deep:#5A3FD6;
     --coral:#FF6B5B;
@@ -23,6 +25,22 @@
     --font-display: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     --font-body: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+  :root[data-theme="dark"]{
+    --bg:#121026;
+    --bg-card:#1C1A38;
+    --ink:#F1F0FA;
+    --ink-soft:#A6A3CC;
+    --pill-dark:#312E58;
+    --line:#312E58;
+    --header-bg: rgba(18,16,38,0.85);
+    --shadow: 0 8px 24px -8px rgba(0,0,0,0.55);
+  }
+  html{ transition: background-color .2s ease; }
+  body, .brand-mark, header.topbar, .badge-card, .course-card, .lesson-row, .stat-pill,
+  .auth-card, .map-section, .lesson-body, .quiz-card, .report-card, nav.tabs, .user-chip,
+  .back-btn, .btn-ghost, .profile-pick{
+    transition: background-color .2s ease, border-color .2s ease, color .2s ease;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -53,7 +71,7 @@
     position:sticky; top:0; z-index:40;
     display:flex; align-items:center; justify-content:space-between;
     padding:16px 28px;
-    background:rgba(247,245,255,0.85);
+    background:var(--header-bg);
     backdrop-filter:blur(10px);
     border-bottom:1px solid var(--line);
     gap:16px; flex-wrap:wrap;
@@ -69,17 +87,24 @@
   }
   .brand-text h1{ font-size:19px; margin:0; line-height:1.1;}
   .brand-text span{ font-size:12px; color:var(--ink-soft); }
-  nav.tabs{ display:flex; gap:6px; background:#fff; border:1px solid var(--line); padding:4px; border-radius:14px; }
+  nav.tabs{ display:flex; gap:6px; background:var(--bg-card); border:1px solid var(--line); padding:4px; border-radius:14px; }
   nav.tabs button{
     border:none; background:transparent; padding:8px 14px; border-radius:10px;
     font-weight:600; font-size:13.5px; color:var(--ink-soft); transition:all .15s ease;
   }
-  nav.tabs button.active{ background:var(--ink); color:#fff; }
+  nav.tabs button.active{ background:var(--pill-dark); color:#fff; }
   nav.tabs button:hover:not(.active){ background:var(--bg); color:var(--ink); }
+
+  .theme-toggle{
+    width:38px; height:38px; border-radius:12px; border:1px solid var(--line);
+    background:var(--bg-card); font-size:17px; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .theme-toggle:hover{ border-color:var(--violet); }
 
   .user-chip{
     display:flex; align-items:center; gap:10px;
-    background:#fff; border:1px solid var(--line); border-radius:999px;
+    background:var(--bg-card); border:1px solid var(--line); border-radius:999px;
     padding:6px 8px 6px 14px;
   }
   .user-chip .avatar{
@@ -129,7 +154,7 @@
   .profile-chip-row{ display:flex; flex-wrap:wrap; gap:8px; }
   .profile-pick{
     display:flex; align-items:center; gap:8px;
-    background:#fff; border:1.5px solid var(--line); border-radius:999px; padding:6px 14px 6px 6px;
+    background:var(--bg-card); border:1.5px solid var(--line); border-radius:999px; padding:6px 14px 6px 6px;
     font-size:13.5px; font-weight:600;
   }
   .profile-pick:hover{ border-color:var(--violet); }
@@ -138,10 +163,19 @@
   /* ---------- Dashboard ---------- */
   .dash-head{ display:flex; justify-content:space-between; align-items:flex-end; gap:20px; flex-wrap:wrap; margin-bottom:6px;}
   .dash-head h2{ font-size:30px; margin:0 0 4px;}
+  .title-row{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .title-row h2{ margin:0; }
+  .btn-continue{
+    border:none; background:linear-gradient(135deg,var(--violet),var(--violet-deep)); color:#fff;
+    font-weight:700; font-size:12.5px; padding:8px 14px; border-radius:999px;
+    box-shadow:0 6px 16px -6px rgba(124,92,252,.55); display:inline-flex; align-items:center; gap:6px;
+    white-space:nowrap;
+  }
+  .btn-continue:hover{ transform:translateY(-1px); }
   .dash-head p{ color:var(--ink-soft); margin:0; max-width:520px; font-size:14.5px;}
   .stat-row{ display:flex; gap:12px; flex-wrap:wrap; }
   .stat-pill{
-    background:#fff; border:1px solid var(--line); border-radius:14px; padding:10px 16px;
+    background:var(--bg-card); border:1px solid var(--line); border-radius:14px; padding:10px 16px;
     display:flex; flex-direction:column; min-width:96px;
   }
   .stat-pill .n{ font-family:var(--font-mono); font-weight:700; font-size:20px; color:var(--violet-deep);}
@@ -164,12 +198,12 @@
   }
   .node:hover .node-ring{ transform:scale(1.06); }
   .node-inner{
-    width:70px; height:70px; border-radius:50%; background:#fff;
+    width:70px; height:70px; border-radius:50%; background:var(--bg-card);
     display:flex; align-items:center; justify-content:center; font-size:26px;
     box-shadow:0 4px 10px -3px rgba(27,27,58,.25);
   }
   .node-pct{
-    position:absolute; bottom:-6px; right:2px; background:var(--ink); color:#fff;
+    position:absolute; bottom:-6px; right:2px; background:var(--pill-dark); color:#fff;
     font-family:var(--font-mono); font-size:10px; font-weight:600; padding:2px 6px; border-radius:999px;
   }
   .node-label{ margin-top:8px; font-size:12.5px; font-weight:600; line-height:1.25; color:var(--ink); }
@@ -183,7 +217,7 @@
   .link-btn{ background:none; border:none; font-weight:700; font-size:13px; color:var(--violet-deep); }
   .badge-row{ display:flex; gap:12px; overflow-x:auto; padding-bottom:6px; }
   .badge-card{
-    flex:0 0 auto; width:150px; background:#fff; border:1.5px solid var(--line); border-radius:16px;
+    flex:0 0 auto; width:150px; background:var(--bg-card); border:1.5px solid var(--line); border-radius:16px;
     padding:14px; text-align:center; opacity:.45; filter:grayscale(1);
   }
   .badge-card.unlocked{ opacity:1; filter:none; border-color:var(--amber); box-shadow:0 6px 16px -6px rgba(255,184,77,.5); }
@@ -195,7 +229,7 @@
   .course-strip{ margin-top:34px; }
   .course-list{ display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin-top:14px;}
   .course-card{
-    background:#fff; border:1.5px solid var(--line); border-radius:16px; padding:16px; text-align:left;
+    background:var(--bg-card); border:1.5px solid var(--line); border-radius:16px; padding:16px; text-align:left;
     display:flex; flex-direction:column; gap:8px; transition:border-color .15s ease, transform .15s ease;
   }
   .course-card:hover{ border-color:var(--violet); transform:translateY(-2px); }
@@ -207,7 +241,7 @@
 
   /* ---------- Course detail / lesson / quiz views ---------- */
   .back-btn{
-    border:none; background:#fff; border:1.5px solid var(--line); padding:8px 14px; border-radius:999px;
+    border:none; background:var(--bg-card); border:1.5px solid var(--line); padding:8px 14px; border-radius:999px;
     font-weight:700; font-size:13px; display:inline-flex; align-items:center; gap:6px; margin-bottom:18px;
   }
   .back-btn:hover{ border-color:var(--violet); }
@@ -222,7 +256,7 @@
 
   .lesson-grid{ display:grid; gap:10px; margin-top:20px;}
   .lesson-row{
-    display:flex; align-items:center; gap:14px; background:#fff; border:1.5px solid var(--line);
+    display:flex; align-items:center; gap:14px; background:var(--bg-card); border:1.5px solid var(--line);
     border-radius:14px; padding:14px 16px; text-align:left;
   }
   .lesson-row:hover{ border-color:var(--violet); }
@@ -235,7 +269,7 @@
   .lesson-row .la{ font-size:12px; color:var(--ink-soft); font-family:var(--font-mono);}
   .quiz-row{ margin-top:6px; border-style:dashed; }
 
-  .lesson-body{ background:#fff; border:1.5px solid var(--line); border-radius:20px; padding:28px; margin-top:18px; max-width:720px;}
+  .lesson-body{ background:var(--bg-card); border:1.5px solid var(--line); border-radius:20px; padding:28px; margin-top:18px; max-width:720px;}
   .lesson-body h3{ margin-top:0; font-size:21px;}
   .lesson-body p{ font-size:15px; color:var(--ink); }
   .lesson-nav{ display:flex; justify-content:space-between; margin-top:26px; gap:10px; flex-wrap:wrap;}
@@ -246,7 +280,7 @@
   .star-btn:hover{ transform:scale(1.15); }
   .star-btn.filled{ color:var(--amber); }
   .btn-ghost{
-    border:1.5px solid var(--line); background:#fff; padding:11px 18px; border-radius:12px; font-weight:700; font-size:13.5px; color:var(--ink);
+    border:1.5px solid var(--line); background:var(--bg-card); padding:11px 18px; border-radius:12px; font-weight:700; font-size:13.5px; color:var(--ink);
   }
   .btn-ghost:hover{ border-color:var(--violet); }
   .btn-complete{
@@ -255,7 +289,7 @@
   }
   .btn-complete.done{ background:var(--ink-soft); box-shadow:none; }
 
-  .quiz-card{ background:#fff; border:1.5px solid var(--line); border-radius:20px; padding:26px; margin-top:18px; max-width:680px;}
+  .quiz-card{ background:var(--bg-card); border:1.5px solid var(--line); border-radius:20px; padding:26px; margin-top:18px; max-width:680px;}
   .quiz-q{ margin-bottom:22px; }
   .quiz-q p.qt{ font-weight:700; font-size:15px; margin:0 0 10px;}
   .opt{
@@ -271,13 +305,18 @@
   }
   .quiz-result.pass{ background:rgba(47,217,166,.12); color:#1a8a67; }
   .quiz-result.fail{ background:rgba(255,107,91,.12); color:#c94b3d; }
+  .quiz-explain{
+    margin-top:8px; padding:10px 12px; border-radius:10px; font-size:13px; line-height:1.5;
+    background:rgba(255,107,91,.08); border-left:3px solid var(--coral); color:var(--ink-soft);
+  }
+  .quiz-explain strong{ color:var(--ink); }
 
   /* ---------- Badges page ---------- */
   .badge-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:14px; margin-top:18px;}
 
   /* ---------- Report page ---------- */
   .report-grid{ display:grid; gap:16px; margin-top:10px; }
-  .report-card{ background:#fff; border:1.5px solid var(--line); border-radius:16px; padding:18px; }
+  .report-card{ background:var(--bg-card); border:1.5px solid var(--line); border-radius:16px; padding:18px; }
   .report-card-head{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
   .report-card-head h4{ margin:0; font-size:15px; flex-grow:1; }
   .report-card-head .ic{ font-size:20px; }
@@ -293,11 +332,20 @@
   /* ---------- Toast ---------- */
   #toast{
     position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px);
-    background:var(--ink); color:#fff; padding:14px 20px; border-radius:14px; font-weight:700; font-size:13.5px;
+    background:var(--pill-dark); color:#fff; padding:14px 20px; border-radius:14px; font-weight:700; font-size:13.5px;
     display:flex; align-items:center; gap:10px; box-shadow:0 10px 30px -8px rgba(0,0,0,.4);
     opacity:0; pointer-events:none; transition:all .3s ease; z-index:100;
   }
   #toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .confetti-layer{ position:fixed; inset:0; pointer-events:none; z-index:200; overflow:hidden; }
+  .confetti-piece{
+    position:absolute; top:-12px; width:8px; height:14px; opacity:0.9; border-radius:2px;
+    animation-name: confetti-fall; animation-timing-function: ease-in; animation-fill-mode: forwards;
+  }
+  @keyframes confetti-fall{
+    to{ transform: translateY(105vh) rotate(var(--rot)); opacity:0; }
+  }
 
   footer{ text-align:center; padding:30px 20px 50px; color:var(--ink-soft); font-size:12px; }
 
@@ -338,6 +386,7 @@
     <button data-tab="dashboard" class="active">Traseul meu</button>
     <button data-tab="badges">Insigne</button>
   </nav>
+  <button id="themeToggleBtn" class="theme-toggle" aria-label="Comută tema deschisă/închisă" title="Comută tema">🌙</button>
   <div class="user-chip" id="userChip">
     <div class="avatar" id="userAvatar">?</div>
     <span id="userName" class="mono" style="font-size:13px;font-weight:600;"></span>
@@ -379,7 +428,10 @@
   <section class="view" id="view-dashboard">
     <div class="dash-head">
       <div>
-        <h2>Traseul tău în AI</h2>
+        <div class="title-row">
+          <h2>Traseul tău în AI</h2>
+          <div id="continueBtnWrap"></div>
+        </div>
         <p>Fiecare nod e un curs. Parcurge lecțiile, dă quiz-ul și urmărește-ți traseul completându-se.</p>
       </div>
       <div class="stat-row" id="statRow"></div>
@@ -429,6 +481,7 @@
   <!-- REPORT VIEW -->
   <section class="view" id="view-report">
     <button class="back-btn" data-back="dashboard">← Înapoi la traseu</button>
+
     <div id="reportContent"></div>
   </section>
 
@@ -437,7 +490,7 @@
 <footer>Cursuri AI — proiect educațional despre AI · progresul este salvat pentru profilul tău.</footer>
 <div id="toast"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script>
 (function(){
   "use strict";
@@ -455,10 +508,10 @@
         {id:"l4", title:"Limitări, halucinații și verificarea informației", html:"<p>Modelele generative pot produce afirmații care sună plauzibil, dar sunt greșite — fenomen numit „halucinație”. Cauza ține de natura statistică a generării: modelul completează tipare probabile, nu verifică fapte împotriva unei surse de adevăr, decât dacă este conectat explicit la unelte de căutare sau la baze de date verificate.</p><p>De aceea, orice informație critică generată de AI — cifre, citate, referințe legale sau medicale — trebuie verificată independent. O practică sănătoasă în 2026 este combinarea AI-ului generativ cu surse verificabile și cu judecata umană, mai ales în decizii cu impact real.</p>"}
       ],
       quiz:[
-        {q:"Ce înseamnă „halucinație” în contextul AI generativ?", opts:["O eroare de rulare a programului","Generarea unei informații plauzibile dar incorecte","O funcție de securitate","Un tip de antrenament"], correct:1},
-        {q:"Ce tip de arhitectură stă la baza majorității LLM-urilor moderne?", opts:["Rețea convoluțională","Arbore de decizie","Transformer","Mașină cu vectori suport"], correct:2},
-        {q:"Ce caracterizează un model multimodal?", opts:["Procesează doar text","Poate procesa/genera mai multe tipuri de date (text, imagine, sunet)","Funcționează fără antrenament","Este mereu mai lent decât un model text-only"], correct:1},
-        {q:"De ce e recomandat să verifici informațiile critice generate de AI?", opts:["Pentru că AI-ul mereu minte intenționat","Pentru că modelele pot genera afirmații plauzibile dar nefondate","Nu e necesar, AI-ul e mereu corect","Doar pentru texte în limbi străine"], correct:1}
+        {q:"Ce înseamnă „halucinație” în contextul AI generativ?", opts:["O eroare de rulare a programului","Generarea unei informații plauzibile dar incorecte","O funcție de securitate","Un tip de antrenament"], correct:1, why:"Modelul completează cel mai probabil tipar de continuare a textului, fără să verifice faptele împotriva unei surse reale — de aceea răspunsul poate suna convingător și totuși fi greșit."},
+        {q:"Ce tip de arhitectură stă la baza majorității LLM-urilor moderne?", opts:["Rețea convoluțională","Arbore de decizie","Transformer","Mașină cu vectori suport"], correct:2, why:"Arhitectura transformer permite modelului să pună în relație fiecare cuvânt cu toate celelalte dintr-un text, ceea ce stă la baza majorității LLM-urilor moderne."},
+        {q:"Ce caracterizează un model multimodal?", opts:["Procesează doar text","Poate procesa/genera mai multe tipuri de date (text, imagine, sunet)","Funcționează fără antrenament","Este mereu mai lent decât un model text-only"], correct:1, why:"Termenul „multimodal” descrie exact capacitatea de a lucra cu mai multe tipuri de conținut deodată — text, imagine, sunet — nu doar cu unul singur."},
+        {q:"De ce e recomandat să verifici informațiile critice generate de AI?", opts:["Pentru că AI-ul mereu minte intenționat","Pentru că modelele pot genera afirmații plauzibile dar nefondate","Nu e necesar, AI-ul e mereu corect","Doar pentru texte în limbi străine"], correct:1, why:"Fără verificare, o afirmație generată greșit poate fi luată drept adevărată doar pentru că sună coerent și sigur."}
       ]
     },
     {
@@ -472,10 +525,10 @@
         {id:"l4", title:"Testare și iterare sistematică a prompturilor", html:"<p>Un prompt rar este perfect din prima încercare. Practica recomandată este testarea pe un set variat de cazuri („edge cases”), notarea eșecurilor și ajustarea incrementală.</p><p>Compararea a două variante de prompt pe aceleași exemple („A/B testing”) ajută la decizii obiective, nu bazate pe impresii. Documentarea prompturilor care funcționează bine — ca într-o bibliotecă reutilizabilă — economisește timp echipei pe termen lung.</p>"}
       ],
       quiz:[
-        {q:"Ce reprezintă tehnica „chain-of-thought”?", opts:["Legarea mai multor modele între ele","Cererea unui raționament pas cu pas înainte de răspunsul final","Un format de fișier","O metodă de criptare"], correct:1},
-        {q:"„Few-shot prompting” presupune:", opts:["Zero exemple oferite modelului","Includerea câtorva exemple intrare-ieșire","Doar întrebări foarte scurte","Folosirea exclusivă a imaginilor"], correct:1},
-        {q:"De ce e importantă definirea limitelor comportamentale pentru un agent AI?", opts:["Nu e importantă","Pentru a preveni acțiuni riscante sau repetitive fără supraveghere","Doar din motive estetice","Pentru a încetini inutil modelul"], correct:1},
-        {q:"Care e scopul testării sistematice a prompturilor?", opts:["Identificarea eșecurilor și îmbunătățirea incrementală","Creșterea lungimii promptului la infinit","Eliminarea garantată a tuturor erorilor","Nu are un scop practic real"], correct:0}
+        {q:"Ce reprezintă tehnica „chain-of-thought”?", opts:["Legarea mai multor modele între ele","Cererea unui raționament pas cu pas înainte de răspunsul final","Un format de fișier","O metodă de criptare"], correct:1, why:"Cerând modelului să explice pașii înainte de concluzie, se reduce riscul de a sări direct la un răspuns greșit."},
+        {q:"„Few-shot prompting” presupune:", opts:["Zero exemple oferite modelului","Includerea câtorva exemple intrare-ieșire","Doar întrebări foarte scurte","Folosirea exclusivă a imaginilor"], correct:1, why:"Exemplele arată modelului exact tiparul așteptat, în loc să-l lași să ghicească doar din descriere."},
+        {q:"De ce e importantă definirea limitelor comportamentale pentru un agent AI?", opts:["Nu e importantă","Pentru a preveni acțiuni riscante sau repetitive fără supraveghere","Doar din motive estetice","Pentru a încetini inutil modelul"], correct:1, why:"Fără limite clare, un agent poate repeta o acțiune la nesfârșit sau poate lua decizii cu impact real fără ca cineva să confirme."},
+        {q:"Care e scopul testării sistematice a prompturilor?", opts:["Identificarea eșecurilor și îmbunătățirea incrementală","Creșterea lungimii promptului la infinit","Eliminarea garantată a tuturor erorilor","Nu are un scop practic real"], correct:0, why:"Testarea pe cazuri variate arată exact unde promptul eșuează, ceea ce permite corectarea lui treptată, nu doar încercare-eroare."}
       ]
     },
     {
@@ -489,10 +542,10 @@
         {id:"l4", title:"Responsabilitate și transparență algoritmică", html:"<p>Cine răspunde când o decizie automatizată greșește? Practicile responsabile presupun păstrarea unui „om în buclă” pentru decizii cu impact semnificativ, documentarea modului în care un sistem a ajuns la o concluzie și posibilitatea de a contesta o decizie automatizată.</p><p>Transparența nu înseamnă publicarea codului sursă, ci comunicarea clară, pe înțelesul utilizatorului, a ce poate și ce nu poate face sistemul.</p>"}
       ],
       quiz:[
-        {q:"Ce cauzează adesea bias-ul într-un sistem AI?", opts:["Date de antrenament care reflectă tipare istorice inegale","Viteza de procesare a serverului","Lipsa de electricitate","Prea multă memorie RAM"], correct:0},
-        {q:"Ce presupune minimizarea datelor?", opts:["Colectarea a cât mai multe date posibil","Colectarea doar a datelor strict necesare","Ștergerea imediată a tuturor datelor","Ignorarea completă a confidențialității"], correct:1},
-        {q:"Cum clasifică reglementările moderne sistemele AI?", opts:["După culoarea interfeței","După nivelul de risc","După preț","După limba folosită"], correct:1},
-        {q:"Ce înseamnă „om în buclă” (human in the loop)?", opts:["Un utilizator care doar vizionează rezultate","Supravegherea/validarea umană a deciziilor automate importante","Un tip de model AI","O eroare de sistem"], correct:1}
+        {q:"Ce cauzează adesea bias-ul într-un sistem AI?", opts:["Date de antrenament care reflectă tipare istorice inegale","Viteza de procesare a serverului","Lipsa de electricitate","Prea multă memorie RAM"], correct:0, why:"Modelul învață tipare din datele de antrenament — dacă acestea reflectă inegalități istorice, modelul le va reproduce."},
+        {q:"Ce presupune minimizarea datelor?", opts:["Colectarea a cât mai multe date posibil","Colectarea doar a datelor strict necesare","Ștergerea imediată a tuturor datelor","Ignorarea completă a confidențialității"], correct:1, why:"Principiul reduce riscul în caz de breșă de securitate și limitează expunerea inutilă a informațiilor personale."},
+        {q:"Cum clasifică reglementările moderne sistemele AI?", opts:["După culoarea interfeței","După nivelul de risc","După preț","După limba folosită"], correct:1, why:"Reglementările moderne diferențiază obligațiile în funcție de cât de mare e impactul potențial al sistemului, nu după alte criterii."},
+        {q:"Ce înseamnă „om în buclă” (human in the loop)?", opts:["Un utilizator care doar vizionează rezultate","Supravegherea/validarea umană a deciziilor automate importante","Un tip de model AI","O eroare de sistem"], correct:1, why:"Termenul descrie exact rolul unei persoane care verifică sau aprobă o decizie înainte ca aceasta să aibă efect."}
       ]
     },
     {
@@ -506,10 +559,10 @@
         {id:"l4", title:"Riscuri și control uman în bucla decizională", html:"<p>Autonomia extinsă a agenților ridică întrebări despre control: ce acțiuni poate lua un agent fără aprobare umană?</p><p>Bunele practici stabilesc puncte de control obligatorii pentru acțiuni ireversibile sau cu impact financiar/legal, limitează accesul la unelte sensibile și păstrează jurnale complete ale deciziilor agentului pentru audit ulterior.</p>"}
       ],
       quiz:[
-        {q:"Ce diferență majoră există între un chatbot clasic și un agent AI?", opts:["Nu există nicio diferență reală","Agentul poate planifica și acționa pe mai mulți pași, folosind unelte","Chatbotul este mereu mai rapid","Agentul nu poate răspunde la întrebări"], correct:1},
-        {q:"Care sunt cele trei componente tipice ale unui agent?", opts:["Culoare, sunet, viteză","Planificare, memorie, unelte","Preț, licență, server","Text, imagine, video"], correct:1},
-        {q:"Ce risc apare în sistemele multi-agent?", opts:["Costuri zero garantate","Propagarea erorilor între agenți fără validare","Lipsa completă de utilitate","Viteză infinită de execuție"], correct:1},
-        {q:"De ce sunt necesare puncte de control umane pentru acțiuni ireversibile?", opts:["Pentru a încetini inutil sistemul","Pentru a preveni consecințe grave fără supraveghere","Nu sunt necesare niciodată","Doar din motive estetice"], correct:1}
+        {q:"Ce diferență majoră există între un chatbot clasic și un agent AI?", opts:["Nu există nicio diferență reală","Agentul poate planifica și acționa pe mai mulți pași, folosind unelte","Chatbotul este mereu mai rapid","Agentul nu poate răspunde la întrebări"], correct:1, why:"Un chatbot clasic doar răspunde la mesaj; agentul continuă să lucreze autonom, pas cu pas, până atinge obiectivul."},
+        {q:"Care sunt cele trei componente tipice ale unui agent?", opts:["Culoare, sunet, viteză","Planificare, memorie, unelte","Preț, licență, server","Text, imagine, video"], correct:1, why:"Aceste trei componente permit unui agent să descompună un obiectiv, să țină minte ce a făcut deja și să acționeze efectiv asupra lumii reale."},
+        {q:"Ce risc apare în sistemele multi-agent?", opts:["Costuri zero garantate","Propagarea erorilor între agenți fără validare","Lipsa completă de utilitate","Viteză infinită de execuție"], correct:1, why:"Dacă un agent din lanț produce un rezultat greșit și nimeni nu-l verifică, eroarea se transmite mai departe către agenții următori."},
+        {q:"De ce sunt necesare puncte de control umane pentru acțiuni ireversibile?", opts:["Pentru a încetini inutil sistemul","Pentru a preveni consecințe grave fără supraveghere","Nu sunt necesare niciodată","Doar din motive estetice"], correct:1, why:"Pentru acțiuni ireversibile (financiare, legale), o confirmare umană previne o greșeală pe care nimic nu o mai poate anula."}
       ]
     },
     {
@@ -523,10 +576,10 @@
         {id:"l4", title:"Măsurarea impactului și ROI", html:"<p>Evaluarea unei inițiative AI trebuie să meargă dincolo de „pare util” — se măsoară timp economisit, reducerea erorilor, satisfacția utilizatorilor și costurile reale (licențe, infrastructură, timp de instruire).</p><p>O inițiativă AI reușită are metrici clare definite înainte de implementare, nu doar impresii ulterioare.</p>"}
       ],
       quiz:[
-        {q:"Ce tip de sarcini sunt cele mai potrivite pentru automatizare timpurie cu AI?", opts:["Sarcini unice și foarte complexe","Sarcini repetitive, cu reguli clare și risc redus","Decizii strategice majore","Sarcini fără date disponibile"], correct:1},
-        {q:"Ce rol au agenții conversaționali în suportul clienți?", opts:["Înlocuiesc complet oamenii, mereu","Rezolvă întrebări frecvente și escaladează cazurile complexe","Nu au niciun rol util","Doar colectează date fără a răspunde"], correct:1},
-        {q:"Ce presupune o „bună integrare” a AI în fluxurile de lucru?", opts:["Izolarea completă de procesele existente","Conectare la date relevante și validare clară a rezultatelor","Eliminarea completă a judecății umane","Ignorarea instruirii echipei"], correct:1},
-        {q:"Ce ar trebui să includă evaluarea ROI a unei inițiative AI?", opts:["Doar impresii subiective","Timp economisit, reducerea erorilor, costuri reale","Nimic măsurabil în mod concret","Doar numărul de utilizatori înregistrați"], correct:1}
+        {q:"Ce tip de sarcini sunt cele mai potrivite pentru automatizare timpurie cu AI?", opts:["Sarcini unice și foarte complexe","Sarcini repetitive, cu reguli clare și risc redus","Decizii strategice majore","Sarcini fără date disponibile"], correct:1, why:"Aceste sarcini au cel mai bun raport beneficiu/risc — un eventual eșec e ușor de detectat și nu are consecințe grave."},
+        {q:"Ce rol au agenții conversaționali în suportul clienți?", opts:["Înlocuiesc complet oamenii, mereu","Rezolvă întrebări frecvente și escaladează cazurile complexe","Nu au niciun rol util","Doar colectează date fără a răspunde"], correct:1, why:"Ei preiau volumul repetitiv, dar transferă către oameni situațiile care depășesc ce pot rezolva sigur."},
+        {q:"Ce presupune o „bună integrare” a AI în fluxurile de lucru?", opts:["Izolarea completă de procesele existente","Conectare la date relevante și validare clară a rezultatelor","Eliminarea completă a judecății umane","Ignorarea instruirii echipei"], correct:1, why:"Fără conectare reală la datele companiei și fără cineva care validează rezultatul, AI-ul rămâne un instrument izolat, nu parte din flux."},
+        {q:"Ce ar trebui să includă evaluarea ROI a unei inițiative AI?", opts:["Doar impresii subiective","Timp economisit, reducerea erorilor, costuri reale","Nimic măsurabil în mod concret","Doar numărul de utilizatori înregistrați"], correct:1, why:"O evaluare corectă compară beneficii măsurabile cu costurile reale (licențe, infrastructură, instruire), nu doar impresia că „ajută”."}
       ]
     },
     {
@@ -540,10 +593,10 @@
         {id:"l4", title:"Cum recunoști conținut generat de AI", html:"<p>Conținutul sintetic — imagini, voce, video — a devenit tot mai greu de distins de cel real. Semnale utile includ inconsistențe vizuale fine (lumină, reflexii, mișcări nenaturale), lipsa unei surse verificabile și context suspect de diseminare.</p><p>Verificarea încrucișată cu surse oficiale rămâne cea mai sigură metodă de a evalua autenticitatea unui conținut sensibil.</p>"}
       ],
       quiz:[
-        {q:"Ce este „prompt injection”?", opts:["O tehnică de accelerare a modelului","Instrucțiuni ascunse în conținut extern menite să manipuleze modelul","Un tip de antrenament AI","O metodă de backup a datelor"], correct:1},
-        {q:"Ce principiu ar trebui aplicat permisiunilor uneltelor conectate la un model AI?", opts:["Acces total nerestricționat","Principiul minimului privilegiu","Fără nicio restricție de acces","Acces public pentru oricine"], correct:1},
-        {q:"Ce ar trebui să facă un sistem cu conținutul extern (pagini web, documente)?", opts:["Să-l trateze ca instrucțiuni de încredere","Să-l trateze ca date, nu ca instrucțiuni","Să-l ignore complet, mereu","Să-l execute automat fără verificare"], correct:1},
-        {q:"Care este cea mai sigură metodă de a verifica un conținut sensibil suspect?", opts:["Ghicit pe baza intuiției","Verificare încrucișată cu surse oficiale","Ignorarea completă a problemei","Distribuirea rapidă, fără verificare"], correct:1}
+        {q:"Ce este „prompt injection”?", opts:["O tehnică de accelerare a modelului","Instrucțiuni ascunse în conținut extern menite să manipuleze modelul","Un tip de antrenament AI","O metodă de backup a datelor"], correct:1, why:"Un document sau o pagină web poate conține text ascuns care încearcă să schimbe comportamentul modelului atunci când e citit."},
+        {q:"Ce principiu ar trebui aplicat permisiunilor uneltelor conectate la un model AI?", opts:["Acces total nerestricționat","Principiul minimului privilegiu","Fără nicio restricție de acces","Acces public pentru oricine"], correct:1, why:"Oferind modelului acces doar la ce are strict nevoie, limitezi daunele posibile dacă ceva merge greșit sau e exploatat."},
+        {q:"Ce ar trebui să facă un sistem cu conținutul extern (pagini web, documente)?", opts:["Să-l trateze ca instrucțiuni de încredere","Să-l trateze ca date, nu ca instrucțiuni","Să-l ignore complet, mereu","Să-l execute automat fără verificare"], correct:1, why:"Dacă modelul ar executa orbește orice text găsit online ca pe o comandă, ar fi ușor de manipulat prin conținut extern rău intenționat."},
+        {q:"Care este cea mai sigură metodă de a verifica un conținut sensibil suspect?", opts:["Ghicit pe baza intuiției","Verificare încrucișată cu surse oficiale","Ignorarea completă a problemei","Distribuirea rapidă, fără verificare"], correct:1, why:"Comparând conținutul suspect cu surse verificate independent, poți confirma sau infirma autenticitatea lui, spre deosebire de a te baza doar pe aparență."}
       ]
     }
   ];
@@ -574,6 +627,15 @@
     const lessonsFrac = (st.lessonsDone||[]).length / course.lessons.length;
     const quizFrac = st.quizDone ? 1 : 0;
     return Math.round((lessonsFrac*0.7 + quizFrac*0.3) * 100);
+  }
+  function findContinueTarget(progress){
+    for(const c of COURSES){
+      const st = progress[c.id] || {lessonsDone:[], quizDone:false};
+      const nextLesson = c.lessons.find(l => !(st.lessonsDone||[]).includes(l.id));
+      if(nextLesson) return {type:'lesson', cid:c.id, lid:nextLesson.id};
+      if(!st.quizDone) return {type:'quiz', cid:c.id};
+    }
+    return null;
   }
 
   /* ============ STARE / STORAGE (localStorage, persistă în browserul utilizatorului) ============ */
@@ -606,6 +668,22 @@
 
   let activeCourseId = null;
   let activeLessonId = null;
+  let currentQuizData = null;
+
+  function shuffleArray(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+  function buildShuffledQuiz(course){
+    return shuffleArray(course.quiz).map(q=>{
+      const order = shuffleArray(q.opts.map((_,i)=>i));
+      return { q:q.q, opts: order.map(i=>q.opts[i]), correct: order.indexOf(q.correct), why:q.why };
+    });
+  }
 
   /* ============ NAVIGARE ============ */
   function showView(id){
@@ -703,6 +781,19 @@
       <div class="stat-pill"><span class="n">${state.badges.length}/${BADGES.length}</span><span class="l">Insigne</span></div>
     `;
 
+    // buton continuă de unde ai rămas
+    const continueTarget = findContinueTarget(progress);
+    const continueWrap = document.getElementById("continueBtnWrap");
+    if(continueTarget){
+      continueWrap.innerHTML = `<button class="btn-continue" id="continueBtn">▶ Continuă</button>`;
+      document.getElementById("continueBtn").addEventListener("click", ()=>{
+        if(continueTarget.type === 'lesson') openLesson(continueTarget.cid, continueTarget.lid);
+        else openQuiz(continueTarget.cid);
+      });
+    } else {
+      continueWrap.innerHTML = `<span class="btn-continue" style="background:linear-gradient(135deg,var(--mint),#1fb587);">🎉 Ai finalizat tot!</span>`;
+    }
+
     // traseul
     const mapInner = document.getElementById("mapInner");
     let svgLines = "";
@@ -783,7 +874,7 @@
     rowsHtml += `<button class="lesson-row quiz-row" id="quizEntry">
         <span class="lesson-check ${quizDone?'done':''}">${quizDone?'✓':'Q'}</span>
         <span class="lt">Quiz final — ${course.quiz.length} întrebări</span>
-        <span class="la">${quizDone? st.quizScore+'/'+course.quiz.length+' corecte' : 'Netentat'}</span>
+        <span class="la">${quizDone? st.quizScore+'/'+course.quiz.length+' corecte' : 'Neînceput'}</span>
       </button>`;
 
     document.getElementById("lessonGrid").innerHTML = rowsHtml;
@@ -849,8 +940,11 @@
     if(!state.progress[cid]) state.progress[cid] = {lessonsDone:[], quizDone:false, quizScore:0, ratings:{}};
     const st = state.progress[cid];
     if(!st.lessonsDone.includes(lid)){
+      const wasComplete = isCourseComplete(state.progress, cid);
       st.lessonsDone.push(lid);
-      checkBadges();
+      const newBadges = checkBadges();
+      const isNowComplete = isCourseComplete(state.progress, cid);
+      if((!wasComplete && isNowComplete) || newBadges.length){ celebrate(); }
       saveDB();
       openLesson(cid, lid); // re-render buton
     }
@@ -860,8 +954,9 @@
   function openQuiz(cid){
     activeCourseId = cid;
     const course = COURSES.find(c=>c.id===cid);
+    currentQuizData = buildShuffledQuiz(course);
     let qHtml = `<span class="mono" style="font-size:11px;color:var(--ink-soft);">${course.short.toUpperCase()} · QUIZ FINAL</span><h3 style="margin-top:6px;">Verifică-ți cunoștințele</h3>`;
-    course.quiz.forEach((q, qi)=>{
+    currentQuizData.forEach((q, qi)=>{
       qHtml += `<div class="quiz-q" data-qi="${qi}"><p class="qt">${qi+1}. ${q.q}</p>`;
       q.opts.forEach((opt, oi)=>{
         qHtml += `<label class="opt"><input type="radio" name="q${qi}" value="${oi}"><span>${opt}</span></label>`;
@@ -878,11 +973,13 @@
 
   function submitQuiz(cid){
     const course = COURSES.find(c=>c.id===cid);
+    const quizData = currentQuizData || buildShuffledQuiz(course);
     let score = 0;
     let allAnswered = true;
-    course.quiz.forEach((q, qi)=>{
+    quizData.forEach((q, qi)=>{
       const selected = document.querySelector(`input[name="q${qi}"]:checked`);
-      const optionEls = document.querySelectorAll(`.quiz-q[data-qi="${qi}"] .opt`);
+      const qEl = document.querySelector(`.quiz-q[data-qi="${qi}"]`);
+      const optionEls = qEl.querySelectorAll(".opt");
       if(!selected){ allAnswered = false; return; }
       const chosen = parseInt(selected.value, 10);
       optionEls.forEach((el, oi)=>{
@@ -890,7 +987,14 @@
         else if(oi === chosen) el.classList.add("wrong");
         el.style.pointerEvents = "none";
       });
-      if(chosen === q.correct) score++;
+      if(chosen === q.correct){
+        score++;
+      } else if(q.why){
+        const explain = document.createElement("div");
+        explain.className = "quiz-explain";
+        explain.innerHTML = `<strong>De ce:</strong> ${q.why}`;
+        qEl.appendChild(explain);
+      }
     });
     if(!allAnswered){
       toast("Răspunde la toate întrebările înainte de a trimite.");
@@ -907,9 +1011,12 @@
 
     const state = currentUserState();
     if(!state.progress[cid]) state.progress[cid] = {lessonsDone:[], quizDone:false, quizScore:0, ratings:{}};
+    const wasComplete = isCourseComplete(state.progress, cid);
     state.progress[cid].quizDone = true;
     state.progress[cid].quizScore = Math.max(score, state.progress[cid].quizScore||0);
-    checkBadges();
+    const newBadges = checkBadges();
+    const isNowComplete = isCourseComplete(state.progress, cid);
+    if((!wasComplete && isNowComplete) || newBadges.length){ celebrate(); }
     saveDB();
   }
 
@@ -924,10 +1031,30 @@
       }
     });
     if(newly.length){
-      newly.forEach((b,i)=> setTimeout(()=> toast(`${b.icon} Insignă nouă: ${b.title}`), i*1600));
+      newly.forEach((b,i)=> setTimeout(()=> toast(`${b.icon} Insignă nouă: ${b.title}`), (i+1)*1600));
     }
     return newly;
   }
+
+  /* ============ MICRO-CELEBRARE (confetti) ============ */
+  function celebrate(){
+    const colors = ['#7C5CFC','#FF6B5B','#2FD9A6','#FFB84D','#4C8DFF','#FF4FA3'];
+    const layer = document.createElement('div');
+    layer.className = 'confetti-layer';
+    document.body.appendChild(layer);
+    for(let i=0;i<28;i++){
+      const piece = document.createElement('span');
+      piece.className = 'confetti-piece';
+      piece.style.left = (Math.random()*100) + 'vw';
+      piece.style.background = colors[Math.floor(Math.random()*colors.length)];
+      piece.style.animationDelay = (Math.random()*0.3) + 's';
+      piece.style.animationDuration = (1.1 + Math.random()*0.6) + 's';
+      piece.style.setProperty('--rot', (Math.random()*360) + 'deg');
+      layer.appendChild(piece);
+    }
+    setTimeout(()=> layer.remove(), 2200);
+  }
+
   function renderBadgesPage(){
     const state = currentUserState();
     if(!state) return;
@@ -980,67 +1107,138 @@
         </li>`;
       });
       html += `</ul>
-        <div class="report-quiz">Quiz: ${st.quizDone? st.quizScore+'/'+c.quiz.length+' corecte' : 'netentat'}</div>
+        <div class="report-quiz">Quiz: ${st.quizDone? st.quizScore+'/'+c.quiz.length+' corecte' : 'Neînceput'}</div>
       </div>`;
     });
     html += `</div>
-      <button class="btn-primary" id="exportReportBtn" style="max-width:260px;margin-top:24px;">⬇ Exportă raport (Excel)</button>
+      <button class="btn-primary" id="exportReportBtn" style="max-width:260px;margin-top:24px;">⬇ Exportă progres cursuri</button>
     `;
     document.getElementById("reportContent").innerHTML = html;
     document.getElementById("exportReportBtn").addEventListener("click", exportReport);
   }
 
-  function exportReport(){
+  async function exportReport(){
     const state = currentUserState();
     if(!state) return;
     const progress = state.progress;
     const completed = COURSES.filter(c=>isCourseComplete(progress,c.id)).length;
     const overallPct = Math.round(COURSES.reduce((s,c)=>s+courseProgressPct(progress,c.id),0)/COURSES.length);
 
-    // Foaia 1: Rezumat
-    const summaryRows = [
-      ["RAPORT DE PROGRES"],
-      ["Utilizator", db.current],
-      ["Generat", new Date().toLocaleString('ro-RO')],
-      [],
-      ["Progres general (%)", overallPct],
-      ["Cursuri complete", `${completed}/${COURSES.length}`],
-      ["Insigne deblocate", `${state.badges.length}/${BADGES.length}`],
-      [],
-      ["Insigne deblocate:"]
-    ];
-    const unlockedBadges = BADGES.filter(b=>state.badges.includes(b.id));
-    if(unlockedBadges.length===0){
-      summaryRows.push(["(niciuna încă)"]);
-    } else {
-      unlockedBadges.forEach(b=> summaryRows.push([b.title, b.desc]));
-    }
-
-    // Foaia 2: Lecții, detaliat
-    const lessonRows = [["Curs","Lecție","Finalizată","Rating (1-5)","Scor Quiz"]];
-    COURSES.forEach(c=>{
-      const st = progress[c.id] || {lessonsDone:[], quizDone:false, quizScore:0, ratings:{}};
-      const quizText = st.quizDone ? `${st.quizScore}/${c.quiz.length}` : "netentat";
-      c.lessons.forEach(l=>{
-        const done = (st.lessonsDone||[]).includes(l.id);
-        const rating = (st.ratings||{})[l.id] || "";
-        lessonRows.push([c.title, l.title, done? "Da":"Nu", rating, quizText]);
-      });
-    });
-
-    if(typeof XLSX === "undefined"){
+    if(typeof ExcelJS === "undefined"){
       toast("Nu am putut încărca librăria Excel. Verifică conexiunea la internet.");
       return;
     }
-    const wb = XLSX.utils.book_new();
-    const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
-    wsSummary['!cols'] = [{wch:24},{wch:40}];
-    const wsLessons = XLSX.utils.aoa_to_sheet(lessonRows);
-    wsLessons['!cols'] = [{wch:28},{wch:44},{wch:12},{wch:14},{wch:14}];
-    XLSX.utils.book_append_sheet(wb, wsSummary, "Rezumat");
-    XLSX.utils.book_append_sheet(wb, wsLessons, "Lecții");
-    XLSX.writeFile(wb, `raport-${db.current.replace(/\s+/g,'_')}.xlsx`);
-    toast('Raportul a fost descărcat.');
+
+    const BRAND = 'FF7C5CFC', DARK = 'FF1B1B3A', LIGHT = 'FFF3F1FE', LINE = 'FFE4E1F5',
+          GREEN = 'FF1A8A67', RED = 'FFC94B3D', AMBER = 'FFB8860B', WHITE = 'FFFFFFFF';
+
+    const wb = new ExcelJS.Workbook();
+    wb.creator = "Cursuri AI";
+    wb.created = new Date();
+
+    /* ---------- Foaia 1: Rezumat ---------- */
+    const wsSum = wb.addWorksheet("Rezumat");
+    wsSum.columns = [{ width: 26 }, { width: 46 }];
+
+    const title = wsSum.addRow(["RAPORT DE PROGRES — CURSURI AI", ""]);
+    wsSum.mergeCells(`A${title.number}:B${title.number}`);
+    title.height = 30;
+    title.getCell(1).font = { bold: true, size: 15, color: { argb: WHITE } };
+    title.getCell(1).alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+    [1, 2].forEach(c => title.getCell(c).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: BRAND } });
+
+    wsSum.addRow([]);
+
+    [
+      ["Utilizator", db.current],
+      ["Generat", new Date().toLocaleString('ro-RO')],
+      ["Progres general", overallPct + "%"],
+      ["Cursuri complete", `${completed}/${COURSES.length}`],
+      ["Insigne deblocate", `${state.badges.length}/${BADGES.length}`],
+    ].forEach(r => {
+      const row = wsSum.addRow(r);
+      row.height = 18;
+      row.getCell(1).font = { bold: true, color: { argb: DARK } };
+      row.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: LIGHT } };
+      row.getCell(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: WHITE } };
+      row.eachCell(c => { c.border = { bottom: { style: 'thin', color: { argb: LINE } } }; c.alignment = { vertical: 'middle', indent: 1 }; });
+    });
+
+    wsSum.addRow([]);
+    const badgeHead = wsSum.addRow(["Insigne deblocate", ""]);
+    wsSum.mergeCells(`A${badgeHead.number}:B${badgeHead.number}`);
+    badgeHead.getCell(1).font = { bold: true, size: 12, color: { argb: DARK } };
+
+    const unlocked = BADGES.filter(b => state.badges.includes(b.id));
+    if (unlocked.length === 0) {
+      wsSum.addRow(["(niciuna încă)"]);
+    } else {
+      unlocked.forEach(b => {
+        const row = wsSum.addRow([b.title, b.desc]);
+        row.getCell(1).font = { bold: true, color: { argb: AMBER } };
+        row.getCell(1).alignment = { indent: 1 };
+      });
+    }
+
+    /* ---------- Foaia 2: Lecții ---------- */
+    const wsLes = wb.addWorksheet("Lecții", { views: [{ state: 'frozen', ySplit: 1 }] });
+    wsLes.columns = [
+      { header: "Curs", key: "curs", width: 26 },
+      { header: "Progres curs", key: "progres", width: 14 },
+      { header: "Lecție", key: "lectie", width: 44 },
+      { header: "Finalizată", key: "fin", width: 12 },
+      { header: "Rating (1-5)", key: "rating", width: 13 },
+      { header: "Scor obținut", key: "scor", width: 13 },
+      { header: "Total întrebări", key: "total", width: 15 },
+    ];
+    const head = wsLes.getRow(1);
+    head.height = 22;
+    head.eachCell(cell => {
+      cell.font = { bold: true, color: { argb: WHITE } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: DARK } };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    });
+    wsLes.autoFilter = { from: 'A1', to: 'G1' };
+
+    const shade = [LIGHT, WHITE];
+    COURSES.forEach((c, ci) => {
+      const st = progress[c.id] || { lessonsDone: [], quizDone: false, quizScore: 0, ratings: {} };
+      const pct = courseProgressPct(progress, c.id);
+      const bg = shade[ci % 2];
+      c.lessons.forEach(l => {
+        const done = (st.lessonsDone || []).includes(l.id);
+        const rating = (st.ratings || {})[l.id] || null;
+        const row = wsLes.addRow({
+          curs: c.title,
+          progres: pct + "%",
+          lectie: l.title,
+          fin: done ? "Da" : "Nu",
+          rating: rating || "",
+          scor: st.quizDone ? st.quizScore : "",
+          total: st.quizDone ? c.quiz.length : "",
+        });
+        row.eachCell(cell => {
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
+          cell.border = { bottom: { style: 'thin', color: { argb: LINE } } };
+          cell.alignment = { vertical: 'middle' };
+        });
+        ['progres', 'fin', 'rating', 'scor', 'total'].forEach(k => row.getCell(k).alignment = { vertical: 'middle', horizontal: 'center' });
+        row.getCell('fin').font = { bold: true, color: { argb: done ? GREEN : RED } };
+        if (!st.quizDone) { row.getCell('scor').font = { color: { argb: 'FF9A98B8' } }; row.getCell('total').font = { color: { argb: 'FF9A98B8' } }; }
+      });
+    });
+
+    const buffer = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `progres-cursuri-${db.current.replace(/\s+/g, '_')}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast('Progresul a fost exportat.');
   }
 
   /* ============ TOAST ============ */
@@ -1053,8 +1251,32 @@
     toastTimer = setTimeout(()=> el.classList.remove("show"), 3200);
   }
 
+  /* ============ TEMĂ (light/dark) ============ */
+  const THEME_KEY = "cursuri-ai-theme";
+  function initTheme(){
+    const saved = localStorage.getItem(THEME_KEY);
+    const theme = saved === "dark" ? "dark" : "light";
+    applyTheme(theme);
+    document.getElementById("themeToggleBtn").addEventListener("click", ()=>{
+      const current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+      const next = current === "dark" ? "light" : "dark";
+      applyTheme(next);
+      localStorage.setItem(THEME_KEY, next);
+    });
+  }
+  function applyTheme(theme){
+    if(theme === "dark"){
+      document.documentElement.setAttribute("data-theme", "dark");
+      document.getElementById("themeToggleBtn").textContent = "☀️";
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+      document.getElementById("themeToggleBtn").textContent = "🌙";
+    }
+  }
+
   /* ============ INIT ============ */
   async function init(){
+    initTheme();
     await loadDB();
     if(db.current && db.users[db.current]){
       document.getElementById("userAvatar").textContent = initials(db.current);

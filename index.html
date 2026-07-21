@@ -187,12 +187,21 @@
   .existing-profiles p{ font-size:12.5px; color:var(--ink-soft); font-weight:600; margin-bottom:10px;}
   .profile-chip-row{ display:flex; flex-wrap:wrap; gap:8px; }
   .profile-pick{
-    display:flex; align-items:center; gap:8px;
-    background:var(--bg-card); border:1.5px solid var(--line); border-radius:999px; padding:6px 14px 6px 6px;
-    font-size:13.5px; font-weight:600; color:var(--ink);
+    display:flex; align-items:center; gap:2px;
+    background:var(--bg-card); border:1.5px solid var(--line); border-radius:999px; padding:6px 6px 6px 6px;
   }
   .profile-pick:hover{ border-color:var(--violet); }
+  .profile-pick-select{
+    display:flex; align-items:center; gap:8px;
+    border:none; background:none; padding:0 8px 0 0;
+    font-size:13.5px; font-weight:600; color:var(--ink);
+  }
   .profile-pick .avatar{ width:26px;height:26px;border-radius:50%; background:linear-gradient(135deg,var(--coral),var(--amber)); display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;}
+  .profile-pick-delete{
+    width:22px;height:22px;border-radius:50%; border:none; background:var(--bg);
+    color:var(--ink-soft); font-size:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .profile-pick-delete:hover{ background:var(--coral); color:#fff; }
 
   /* ---------- Dashboard ---------- */
   .dash-head{ display:flex; justify-content:space-between; align-items:flex-end; gap:20px; flex-wrap:wrap; margin-bottom:6px;}
@@ -757,10 +766,24 @@
     if(names.length===0){ wrap.classList.add("hidden"); return; }
     wrap.classList.remove("hidden");
     names.forEach(n=>{
-      const chip = document.createElement("button");
+      const chip = document.createElement("div");
       chip.className = "profile-pick";
-      chip.innerHTML = `<span class="avatar">${initials(n)}</span><span>${escapeHtml(n)}</span>`;
-      chip.addEventListener("click", ()=> selectUser(n));
+      chip.innerHTML = `
+        <button type="button" class="profile-pick-select">
+          <span class="avatar">${initials(n)}</span><span>${escapeHtml(n)}</span>
+        </button>
+        <button type="button" class="profile-pick-delete" aria-label="Șterge profilul ${escapeHtml(n)}">✕</button>
+      `;
+      chip.querySelector(".profile-pick-select").addEventListener("click", ()=> selectUser(n));
+      chip.querySelector(".profile-pick-delete").addEventListener("click", (e)=>{
+        e.stopPropagation();
+        if(confirm(`Ștergi profilul „${n}” și tot progresul lui? Nu poate fi anulat.`)){
+          delete db.users[n];
+          if(db.current === n) db.current = null;
+          saveDB();
+          renderAuthProfiles();
+        }
+      });
       row.appendChild(chip);
     });
   }

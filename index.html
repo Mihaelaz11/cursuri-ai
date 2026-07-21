@@ -311,6 +311,9 @@
   .lesson-row .lt{ font-weight:600; font-size:14.5px; flex-grow:1;}
   .lesson-row .la{ font-size:12px; color:var(--ink-soft); font-family:var(--font-mono);}
   .quiz-row{ margin-top:6px; border-style:dashed; }
+  .quiz-row.locked{ opacity:.55; }
+  .quiz-row.locked:hover{ border-color:var(--line); }
+  .quiz-row.locked .lesson-check{ background:var(--line); border-color:var(--line); color:var(--ink-soft); }
 
   .lesson-body{ background:var(--bg-card); border:1.5px solid var(--line); border-radius:20px; padding:28px; margin-top:18px; max-width:720px;}
   .lesson-body h3{ margin-top:0; font-size:21px; color:var(--ink);}
@@ -945,17 +948,22 @@
     }).join("");
 
     const quizDone = !!st.quizDone;
-    rowsHtml += `<button class="lesson-row quiz-row" id="quizEntry">
-        <span class="lesson-check ${quizDone?'done':''}">${quizDone?'✓':'Q'}</span>
+    const allLessonsDone = course.lessons.every(l => (st.lessonsDone||[]).includes(l.id));
+    const quizLocked = !quizDone && !allLessonsDone;
+    rowsHtml += `<button class="lesson-row quiz-row ${quizLocked?'locked':''}" id="quizEntry">
+        <span class="lesson-check ${quizDone?'done':''}">${quizDone?'✓':(quizLocked?'🔒':'Q')}</span>
         <span class="lt">Quiz final — ${course.quiz.length} întrebări</span>
-        <span class="la">${quizDone? st.quizScore+'/'+course.quiz.length+' corecte' : 'Neînceput'}</span>
+        <span class="la">${quizDone? st.quizScore+'/'+course.quiz.length+' corecte' : (quizLocked ? 'Termină toate lecțiile mai întâi' : 'Neînceput')}</span>
       </button>`;
 
     document.getElementById("lessonGrid").innerHTML = rowsHtml;
     document.querySelectorAll("#lessonGrid .lesson-row[data-lesson]").forEach(btn=>{
       btn.addEventListener("click", ()=> openLesson(cid, btn.dataset.lesson));
     });
-    document.getElementById("quizEntry").addEventListener("click", ()=> openQuiz(cid));
+    document.getElementById("quizEntry").addEventListener("click", ()=>{
+      if(quizLocked){ toast("🔒 Termină toate lecțiile mai întâi ca să deblochezi quiz-ul."); return; }
+      openQuiz(cid);
+    });
 
     showView("course");
   }
@@ -1036,10 +1044,17 @@
 
   /* ============ QUIZ VIEW ============ */
   function openQuiz(cid){
-    activeCourseId = cid;
-    const state = currentUserState();
-    if(state.lastCourseId !== cid){ state.lastCourseId = cid; saveDB(); }
     const course = COURSES.find(c=>c.id===cid);
+    const state = currentUserState();
+    const st = state.progress[cid] || {lessonsDone:[], quizDone:false};
+    const allLessonsDone = course.lessons.every(l => (st.lessonsDone||[]).includes(l.id));
+    if(!st.quizDone && !allLessonsDone){
+      toast("🔒 Termină toate lecțiile mai întâi ca să deblochezi quiz-ul.");
+      openCourse(cid);
+      return;
+    }
+    activeCourseId = cid;
+    if(state.lastCourseId !== cid){ state.lastCourseId = cid; saveDB(); }
     currentQuizData = buildShuffledQuiz(course);
     let qHtml = `<span class="mono" style="font-size:11px;color:var(--ink-soft);">${course.short.toUpperCase()} · QUIZ FINAL</span><h3 style="margin-top:6px;">Verifică-ți cunoștințele</h3>`;
     currentQuizData.forEach((q, qi)=>{

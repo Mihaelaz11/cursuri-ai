@@ -654,7 +654,18 @@
     const quizFrac = st.quizDone ? 1 : 0;
     return Math.round((lessonsFrac*0.7 + quizFrac*0.3) * 100);
   }
-  function findContinueTarget(progress){
+  function findContinueTarget(state){
+    const progress = state.progress;
+    // 1) continuă mai întâi cursul la care ai lucrat ultima dată
+    const lastCourse = state.lastCourseId && COURSES.find(c=>c.id===state.lastCourseId);
+    if(lastCourse){
+      const st = progress[lastCourse.id] || {lessonsDone:[], quizDone:false};
+      const nextLesson = lastCourse.lessons.find(l => !(st.lessonsDone||[]).includes(l.id));
+      if(nextLesson) return {type:'lesson', cid:lastCourse.id, lid:nextLesson.id};
+      if(!st.quizDone) return {type:'quiz', cid:lastCourse.id};
+      // cursul e complet — trecem la logica implicită de mai jos
+    }
+    // 2) altfel, primul curs neterminat, în ordinea din listă
     for(const c of COURSES){
       const st = progress[c.id] || {lessonsDone:[], quizDone:false};
       const nextLesson = c.lessons.find(l => !(st.lessonsDone||[]).includes(l.id));
@@ -688,7 +699,7 @@
     }
   }
   function ensureUser(name){
-    if(!db.users[name]) db.users[name] = {progress:{}, badges:[]};
+    if(!db.users[name]) db.users[name] = {progress:{}, badges:[], lastCourseId:null};
   }
   function currentUserState(){ return db.users[db.current]; }
 
@@ -756,11 +767,23 @@
   function initials(name){ return (name.trim().slice(0,2)||"??").toUpperCase(); }
   function escapeHtml(s){ const d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
 
+  // potrivire fără majuscule/spații — evită profiluri duplicate create din greșeală
+  // (ex: „mihaela” tastat quiet, dar profilul salvat e „Mihaela”)
+  function normalizeProfileName(n){ return n.trim().replace(/\s+/g," ").toLowerCase(); }
+  function findExistingProfileName(typed){
+    const norm = normalizeProfileName(typed);
+    return Object.keys(db.users).find(n => normalizeProfileName(n) === norm) || null;
+  }
+
   document.getElementById("startBtn").addEventListener("click", ()=>{
     const input = document.getElementById("nameInput");
-    const name = input.value.trim();
-    if(!name){ input.focus(); return; }
-    selectUser(name);
+    const typed = input.value.trim();
+    if(!typed){ input.focus(); return; }
+    const existing = findExistingProfileName(typed);
+    if(existing && existing !== typed){
+      toast(`👋 Continuăm cu profilul existent „${existing}”`);
+    }
+    selectUser(existing || typed);
   });
   document.getElementById("nameInput").addEventListener("keydown", e=>{
     if(e.key==="Enter") document.getElementById("startBtn").click();
@@ -808,7 +831,7 @@
     `;
 
     // buton continuă de unde ai rămas
-    const continueTarget = findContinueTarget(progress);
+    const continueTarget = findContinueTarget(state);
     const continueWrap = document.getElementById("continueBtnWrap");
     if(continueTarget){
       continueWrap.innerHTML = `<button class="btn-continue" id="continueBtn">▶ Continuă</button>`;
@@ -874,7 +897,9 @@
   function openCourse(cid){
     activeCourseId = cid;
     const course = COURSES.find(c=>c.id===cid);
-    const progress = currentUserState().progress;
+    const state = currentUserState();
+    const progress = state.progress;
+    if(state.lastCourseId !== cid){ state.lastCourseId = cid; saveDB(); }
     const st = progress[cid] || {lessonsDone:[], quizDone:false, quizScore:0, ratings:{}};
     const pct = courseProgressPct(progress, cid);
 
@@ -918,7 +943,9 @@
     const course = COURSES.find(c=>c.id===cid);
     const lesson = course.lessons.find(l=>l.id===lid);
     const idx = course.lessons.findIndex(l=>l.id===lid);
-    const st = currentUserState().progress[cid] || {lessonsDone:[], ratings:{}};
+    const state = currentUserState();
+    if(state.lastCourseId !== cid){ state.lastCourseId = cid; saveDB(); }
+    const st = state.progress[cid] || {lessonsDone:[], ratings:{}};
     const done = (st.lessonsDone||[]).includes(lid);
     const currentRating = (st.ratings||{})[lid] || 0;
 
@@ -987,6 +1014,8 @@
   /* ============ QUIZ VIEW ============ */
   function openQuiz(cid){
     activeCourseId = cid;
+    const state = currentUserState();
+    if(state.lastCourseId !== cid){ state.lastCourseId = cid; saveDB(); }
     const course = COURSES.find(c=>c.id===cid);
     currentQuizData = buildShuffledQuiz(course);
     let qHtml = `<span class="mono" style="font-size:11px;color:var(--ink-soft);">${course.short.toUpperCase()} · QUIZ FINAL</span><h3 style="margin-top:6px;">Verifică-ți cunoștințele</h3>`;
